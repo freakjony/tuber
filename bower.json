@@ -1,16 +1,21 @@
 {
-  "name": "ngmap",
-  "version": "1.17.3",
-  "main": "./build/scripts/ng-map.js",
-  "homepage": "https://github.com/allenhwkim/angularjs-google-maps",
+  "name": "tuber-ui",
+  "description": "Proyecto Tuber 2016 UTN",
+  "main": "server.js",
   "authors": [
-    "Allen Kim <allenhwkim@gmail.com>"
+    "TuberTeam"
   ],
-  "description": "The Simplest AngularJs Google Maps V3 Directive Module",
-  "keywords": [
-    "angularjs",
-    "angularjs-directive",
-    "google-maps"
+  "license": "MIT",
+  "homepage": "https://github.com/santi001/tuber",
+  "private": true,
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
   ],
-  "license": "MIT"
+  "dependencies": {
+    "ngmap": "^1.17.8"
+  }
 }
