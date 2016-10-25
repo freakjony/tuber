@@ -12,7 +12,7 @@
     // configuration =================
 	
     // After having Heroku deployed change to mLab https://devcenter.heroku.com/articles/mongolab
-    mongoose.connect('mongodb://localhost:27017/tuber'); 
+   // mongoose.connect('mongodb://localhost:27017/tuber'); 
 	var db = mongoose.connection;
   	db.on('error', console.error.bind(console, 'connection error:'));
   	db.once('open', function callback() {
@@ -36,8 +36,8 @@
 	app.use('/api', containerRoute);
 
     // listen (start app with node server.js) ======================================
-    app.listen(9998);
-    console.log("App listening on port 9998");
+    app.listen(process.env.PORT || 5000)
+    console.log("App listening on port " + process.env.PORT);
 
 	app.get('/', function(req, res) {
         res.sendfile('./WebContent/index.html'); // load the single view file (angular will handle the page changes on the front-end)
