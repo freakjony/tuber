@@ -1,8 +1,11 @@
 // Load required packages
 var mongoose = require('mongoose');
 
-// Define our beer schema
+// Define our Container schema
 var ContainerSchema   = new mongoose.Schema({
+  containerId: String,
+  lat: Number,
+  lng: Number,
   address: String,
   percentageFull: Number // Number from 0 to 100
 });

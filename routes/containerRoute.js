@@ -1,50 +1,110 @@
 var express = require('express');
+var geocoder = require('geocoder');
+var Container = require('../models/container');
 var router = express.Router();
+var googleMapsClient = require('@google/maps').createClient({
+    key: 'AIzaSyAgjlXMQ_h6MIUTgEeheA0nfPlyBjr_6hY'
+});
+
+var latLong = '';
 
 router.use(function timeLog(req, res, next) {
-  console.log('Time: ', Date.now());
-  next();
+    console.log('Time: ', Date.now());
+    next();
 });
 
-router.get('/sayhi', function(req, res) {
-  res.json({ message: 'All the niggas say hooo-ohhh' });
-	console.log("All the niggas say hooo-ohhh");
-});
-
-// Create a new route with the prefix /container
-//var containerRoute = router.route('/container');
-
-// Create endpoint /api/containers for POSTS
+// ======= Create endpoint /api/containers for POSTS ============= //
 router.post('/container', function(req, res) {
-  // Create a new instance of the Beer model
-  var cont = new Container();
+    // Create a new instance of a Container
+    var cont = new Container();
+    // Set the container properties that came from the POST data
 
-  // Set the container properties that came from the POST data
-  cont.address = req.body.address;
-  cont.percentageFull = req.body.percentageFull;
+    searchAddress(req.body.address, function(dir, error) {
+        if (error) {
+            console.log("aprendiendo javascript");
+            return res.send(error);
+        }
+        console.log("Stringify : " + unescape(latLong));
+        cont.address = req.body.address;
+        cont.lat = JSON.parse(latLong).lat;
+        cont.lng = JSON.parse(latLong).lng;
+        cont.percentageFull = req.body.percentageFull;
+        cont.containerId = req.body.containerId;
 
-  // Save the container in DB and check for errors
-  cont.save(function(err) {
-    if (err)
-      res.send(err);
+        // Save the container in DB and check for errors
+        cont.save(function(err) {
+            if (err)
+                res.send(err);
 
-    res.json({ message: 'Container information added to the database!', data: cont });
-  });
-});
- 
-
-/*
- * GET containerList.
- */
-/*
-router.get('/containerList', function(req, res) {
-    var db = req.db;
-    var collection = db.get('containerList');
-    collection.find({},{},function(e,docs){
-        res.json(docs);
+            res.json({ message: 'Container information added to the database!', data: cont });
+        });
     });
-});*/
+});
+
+// ========= RETURNS ALL ADDRESSES ON DB ==============//
+router.get('/addresslist', function(req, res) {
+    var llenado = 50;
+
+    if (req.query.llenado !== undefined) {
+        llenado = req.query.llenado;
+    }
+    console.log("Finding containers with percentageFull > " + llenado);
+    Container.find({ percentageFull: { $gt: llenado } }, function(err, containers) {
+        var containerMap = {};
+
+        containers.forEach(function(container) {
+            console.log("Container info: " + container.address);
+            containerMap[container._id] = container.address;
+        });
+
+        res.send(containerMap);
+    });
+});
+
+// ========= RETURNS ALL ADDRESSES ON DB ==============//
+router.get('/geocodedlist', function(req, res) {
+    Container.find({}, function(err, containers) {
+        var containerMap = {};
+
+        containers.forEach(function(container) {
+            console.log("Container info: " + container.address);
+            containerMap[container._id] = {
+                lat: container.lat,
+                lng: container.lng
+            };
+
+        });
+
+        res.send(containerMap);
+    });
+});
+
+// ======== TEST COMMUNICATION END POINT FOR ARDUINO/APP ==============//
+router.get('/test', function(req, res) {
+    var parameter = req.query.llenado;
+    console.log("Llenado: " + parameter);
+    res.send(parameter);
+});
 
 
+//======== GEOCODE -- TRANSFORM ADDRESS INTO LAT/LONG =================//
+function searchAddress(ad, callback) {
+
+    if (typeof(geocoder) == 'undefined') geocoder = new google.maps.Geocoder();
+
+    geocoder.geocode(ad, function(results, status) {
+        if (status.status == 'OK') {
+
+            //latLong = JSON.stringify(status.results[0].geometry.location); // reference LatLng value
+            callback(null, JSON.stringify(status.results[0].geometry.location));
+        } else { // if status value is not equal to "google.maps.GeocoderStatus.OK"
+            callback(status, null);
+            // latLong = status;
+            // warning message
+            console.log("The Geocode was not successful for the following reason: " + JSON.stringify(status));
+        }
+        // callback();
+    });
+}
 
 module.exports = router;
