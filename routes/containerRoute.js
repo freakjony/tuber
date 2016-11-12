@@ -45,7 +45,7 @@ router.post('/container', function(req, res) {
 router.get('/addresslist', function(req, res) {
     var llenado = 50;
 
-    if (req.query.llenado !== undefined) {
+    if (req.query.llenado !== undefined && req.query.llenado !== "") {
         llenado = req.query.llenado;
     }
     console.log("Finding containers with percentageFull > " + llenado);
