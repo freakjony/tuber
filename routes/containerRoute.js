@@ -19,22 +19,24 @@ router.post('/container', function(req, res) {
     var cont = new Container();
     // Set the container properties that came from the POST data
 
-    searchAddress(req.body.address, function(dir, error) {
+    searchAddress(req.body.address, function(error, dir) {
         if (error) {
-            console.log("aprendiendo javascript");
-            return res.send(error);
+            console.log('la cagaste', error);
+            return res.status(500).send(error);
         }
-        console.log("Stringify : " + unescape(latLong));
+        console.log("Stringify : " + unescape(dir));
         cont.address = req.body.address;
-        cont.lat = JSON.parse(latLong).lat;
-        cont.lng = JSON.parse(latLong).lng;
+        cont.lat = JSON.parse(dir).lat;
+        cont.lng = JSON.parse(dir).lng;
         cont.percentageFull = req.body.percentageFull;
         cont.containerId = req.body.containerId;
 
         // Save the container in DB and check for errors
         cont.save(function(err) {
-            if (err)
-                res.send(err);
+            if (err){
+                console.log('500',err);
+                res.status(500).send(err);
+            }
 
             res.json({ message: 'Container information added to the database!', data: cont });
         });
@@ -76,6 +78,12 @@ router.get('/geocodedlist', function(req, res) {
         });
 
         res.send(containerMap);
+    });
+});
+
+router.get('/container', function(req, res) {
+    Container.find({}, function(err, containers) {
+        res.send(containers);
     });
 });
 
