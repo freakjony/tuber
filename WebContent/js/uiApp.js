@@ -1,16 +1,16 @@
-//(function(angular) {
     var app = angular.module("ngMap", []);
     app.controller(
         "tuberApp", [
             '$scope',
             '$http',
             function($scope, $http) {
-
+                $scope.user = { "name": "ShummyLyn", "admin": true };
                 $scope.newContainer = { "containerId": null, "percentageFull": 0, "lng": null, "lat": null, "address": null };
+
                 $scope.addContainer = function(jsonContainer) {
                     $scope.addressError = null;
-                	console.log("Inside addContainer angular function");
-                	console.log(jsonContainer);
+                    console.log("Inside addContainer angular function");
+                    console.log(jsonContainer);
                     $http({
                         method: 'POST',
                         url: '/api/container',
@@ -22,20 +22,21 @@
                         function(response) {
                             console.log(response.data);
                             noty({
-                                text: "Felicidades has agregado un nuevo contenedor. ",
+                                text: "Nuevo contenedor almacenado satisfactoriamente. ",
                                 type: 'success',
-                                timeout: 4000
+                                timeout: 5000
                             });
+                         //   $scope.$apply();
                             $scope.newContainer = response.data;
                             $('#insertContainer').modal('hide');
-
                         },
                         function(response) {
                             $scope.addressError = 'Request failed' + " error code: " + response.data + response.data.status;
                         });
                 };
 
-                $scope.getContainers = function(){
+            
+                $scope.getContainers = function() {
                     $http({
                         method: 'GET',
                         url: '/api/container',
@@ -50,8 +51,37 @@
                             $scope.addressError = 'Request failed' + " error code: " + response.data + response.data.status;
                         });
                 };
-                    
+
                 $scope.getContainers();
+                $scope.prepareToDelete = function(container) {
+                    $scope.deleteContainer = container;
+                };
+
+                $scope.delete = function() {
+                    console.log("Inside delete angular function");
+                    console.log($scope.deleteContainer);
+                    $http({
+                        method: 'DELETE',
+                        url: '/api/delete',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        data: $scope.deleteContainer
+                    }).then(
+                        function(response) {
+                            console.log(response.data);
+                            noty({
+                                text: "Contenedor eliminado satisfactoriamente. ",
+                                type: 'success',
+                                timeout: 5000
+                            });
+                          //  $scope.$apply();
+                            $('#viewContainers').modal('hide');
+                            $('#editContainer').modal('hide');
+                        },
+                        function(response) {
+                            $scope.addressError = 'Request failed' + " error code: " + response.data + response.data.status;
+                        });
+                }
             }
         ]);
-//});

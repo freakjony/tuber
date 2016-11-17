@@ -33,8 +33,8 @@ router.post('/container', function(req, res) {
 
         // Save the container in DB and check for errors
         cont.save(function(err) {
-            if (err){
-                console.log('500',err);
+            if (err) {
+                console.log('500', err);
                 res.status(500).send(err);
             }
 
@@ -72,7 +72,8 @@ router.get('/geocodedlist', function(req, res) {
             console.log("Container info: " + container.address);
             containerMap[container._id] = {
                 lat: container.lat,
-                lng: container.lng
+                lng: container.lng,
+                percentageFull: container.percentageFull
             };
 
         });
@@ -90,10 +91,31 @@ router.get('/container', function(req, res) {
 // ======== TEST COMMUNICATION END POINT FOR ARDUINO/APP ==============//
 router.get('/test', function(req, res) {
     var parameter = req.query.llenado;
-    console.log("Llenado: " + parameter);
-    res.send(parameter);
+    var id = req.query.containerId;
+
+    Container.findOne({ containerId: id }, function(err, container) {
+        if (err) {
+            return next(err);
+        }
+        container.percentageFull = parameter;
+        container.save(function(err, updatedContainer) {
+            if (err) {
+                return next(err);
+            }
+            res.send(updatedContainer);
+        });
+    });
 });
 
+// ========= DELETE CONTAINER BY ID ==================== //
+router.delete('/delete', function(req, res) {
+    var id = req.body.containerId;
+ //   console.log("The request is: " + JSON.stringify(req));
+    console.log("Attempting to delete container with id: " + id);
+    Container.find({ containerId: id }).remove().exec();
+
+    res.json({ message: 'Container deleted successfully!', data: Container });
+});
 
 //======== GEOCODE -- TRANSFORM ADDRESS INTO LAT/LONG =================//
 function searchAddress(ad, callback) {

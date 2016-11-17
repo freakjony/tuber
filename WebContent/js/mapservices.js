@@ -1,5 +1,6 @@
 var markers = [];
 var map;
+var server = "http://localhost:5000/";
 
 function initMap() {
     var directionsService = new google.maps.DirectionsService;
@@ -21,7 +22,7 @@ function calculateAndDisplayRoute(directionsService, directionsDisplay) {
     var waypts = [];
     var llenado = document.getElementById('llenado-minimo').value;
 
-    httpGetAsync("http://localhost:5000/api/addresslist?llenado=" + llenado, function(response) {
+    httpGetAsync(server + "api/addresslist?llenado=" + llenado, function(response) {
 
         var keys = [];
         for (var v in response) {
@@ -48,13 +49,14 @@ function calculateAndDisplayRoute(directionsService, directionsDisplay) {
         });
     });
 
-    httpGetAsync("http://localhost:5000/api/geocodedlist", function(response) {
+    httpGetAsync(server + "api/geocodedlist", function(response) {
         for (var v in response) {
             if (response[v].lat !== undefined) {
                 var feature = {
-                    position: new google.maps.LatLng(response[v].lat, response[v].lng)
+                    position: new google.maps.LatLng(response[v].lat, response[v].lng),
+                    percentageFull: response[v].percentageFull
                 }
-                addMarker(feature);
+                addMarker(feature, llenado);
 
             };
         }
@@ -75,11 +77,11 @@ function httpGetAsync(theUrl, callback) {
 }
 
 
-function addMarker(feature) {
+function addMarker(feature, llenado) {
     console.log("Feature: " + feature.position);
     var marker = new google.maps.Marker({
         position: feature.position,
-        icon: './img/containerIcon.png',
+        icon: feature.percentageFull >= llenado ? './img/basureroRojo.png' : './img/basureroVerde.png',   //'./img/containerIcon.png',
         map: map
     });
 }
