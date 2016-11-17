@@ -1,9 +1,8 @@
     var app = angular.module("ngMap", []);
     app.controller(
         "tuberApp", [
-            '$scope',
-            '$http',
-            function($scope, $http) {
+            '$scope', '$http', '$timeout',
+            function($scope, $http, $timeout) {
                 $scope.user = { "name": "ShummyLyn", "admin": true };
                 $scope.newContainer = { "containerId": null, "percentageFull": 0, "lng": null, "lat": null, "address": null };
 
@@ -26,7 +25,7 @@
                                 type: 'success',
                                 timeout: 5000
                             });
-                         //   $scope.$apply();
+                            //   $scope.$apply();
                             $scope.newContainer = response.data;
                             $('#insertContainer').modal('hide');
                         },
@@ -35,7 +34,18 @@
                         });
                 };
 
-            
+
+                $scope.callFnOnInterval = function(fn, timeInterval) {
+                    var timeIntervalInSec = 1;
+
+                        var promise = $timeout(fn, timeInterval);
+
+                        return promise.then(function() {
+                            $scope.callFnOnInterval(fn, timeInterval);
+                        });
+                    //return $interval(fn, 1000 * timeInterval); 
+                };
+
                 $scope.getContainers = function() {
                     $http({
                         method: 'GET',
@@ -52,7 +62,8 @@
                         });
                 };
 
-                $scope.getContainers();
+                $scope.callFnOnInterval($scope.getContainers, 5000);
+
                 $scope.prepareToDelete = function(container) {
                     $scope.deleteContainer = container;
                 };
@@ -75,7 +86,7 @@
                                 type: 'success',
                                 timeout: 5000
                             });
-                          //  $scope.$apply();
+                            //  $scope.$apply();
                             $('#viewContainers').modal('hide');
                             $('#editContainer').modal('hide');
                         },
