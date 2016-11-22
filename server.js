@@ -27,6 +27,8 @@ app.use(methodOverride());
 var router = express.Router();
 var Container = require('./models/container');
 var containerRoute = require('./routes/containerRoute');
+var Container = require('./models/user');
+var containerRoute = require('./routes/userRoute');
 
 app.use('/api', containerRoute);
 

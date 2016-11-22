@@ -64,6 +64,8 @@
                 </li>
                 <li><a href="#team">Armar recorrido</a></li>
                 <li><a href="#contact">Contacto</a></li>
+                <li><a href="#login" data-toggle="modal" data-target="#login"> Iniciar Sesi&oacute;n</a></li>
+                <li><a href="#signup" data-toggle="modal" data-target="#signup"> Registrarse</a></li>
             </ul>
             <a class="res-nav_click" href="#"><i class="fa-bars"></i></a>
         </div>
@@ -141,14 +143,14 @@
                             <form name="editForm" role="form" ng-submit="addContainer(newContainer)" show-validation>
                                 <div class="form-group">
                                     <label style="margin-left: 5px;"> Dirección: </label>
-                                    <input style="margin-left: auto; margin-right: auto; width: 95%;" type="text" class="form-control" name="name" placeholder="Calle número, Ciudad, Provincia" ng-model="newContainer.address" required="" oninvalid="this.setCustomValidity('Ingrese una dirección válida')">
+                                    <input style="margin-left: auto; margin-right: auto; width: 95%;" type="text" class="form-control" name="name" placeholder="Calle número, Ciudad, Provincia" ng-model="newContainer.address" required="" oninvalid="this.setCustomValidity('Ingrese una dirección válida')" oninput="this.setCustomValidity('')">
                                 </div>
                                 <div>
                                     <span class="help-block" ng-show="addressError">La direccion ingresada no es valida</span>
                                 </div>
                                 <div class="form-group">
                                     <label style="margin-left: 5px;"> Container Id: </label>
-                                    <input style="margin-left: auto; margin-right: auto; width: 95%;" type="text" class="form-control" name="container-id" ng-model="newContainer.containerId" required="" oninvalid="this.setCustomValidity('Ingresar un identificador')">
+                                    <input style="margin-left: auto; margin-right: auto; width: 95%;" type="text" class="form-control" name="container-id" ng-model="newContainer.containerId" required="" oninvalid="this.setCustomValidity('Ingresar un identificador')" oninput="this.setCustomValidity('')">
                                 </div>
                                 <div class="form-row">
                                 </div>
@@ -216,6 +218,75 @@
                         <div class="modal-footer">
                             <button type="submit" class="btn btn-primary" ng-click="delete()">Confirmar</button>
                             <button type="button" class="btn btn-default" data-dismiss="modal">Cancelar</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="login" class="modal fade" role="dialog">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <button type="button" class="close" data-dismiss="modal">&times;</button>
+                            <h4 class="modal-title" style="text-align: center;">Iniciar Sesi&oacute;n</h4>
+                        </div>
+                        <div class="modal-body">
+                            <form name="editForm" role="form" ng-submit="login()" show-validation>
+                                <div class="form-group">
+                                    <label style="margin-left: 5px;"> Nombre de usuario: </label>
+                                    <input style="margin-left: auto; margin-right: auto; width: 95%;" type="text" class="form-control" name="username" placeholder="Nombre de usuario" ng-model="user.username" required oninvalid="this.setCustomValidity('Ingrese un nombre de usuario valido')" oninput="this.setCustomValidity('')">
+                                </div>
+                                <div>
+                                    <span class="help-block" ng-show="badLogin"><p class="text-danger">{{badLogin}}</p></span>
+                                </div>
+                                <div class="form-group">
+                                    <label style="margin-left: 5px;"> Contrase&ntilde;a: </label>
+                                    <input style="margin-left: auto; margin-right: auto; width: 95%;" type="password" class="form-control" name="password" ng-model="user.password" required="" oninvalid="this.setCustomValidity('Ingrese una contrase&ntilde;a')" oninput="this.setCustomValidity('')">
+                                </div>
+                                <div class="form-row">
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="submit" class="btn btn-primary">Iniciar Sesi&oacute;n</button>
+                                    <button type="button" class="btn btn-default" data-dismiss="modal" ng-click="user = {}">Cancelar</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="signup" class="modal fade" role="dialog">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <button type="button" class="close" data-dismiss="modal">&times;</button>
+                            <h4 class="modal-title" style="text-align: center;">Registrarse</h4>
+                        </div>
+                        <div class="modal-body">
+                            <form name="signupForm" role="form" ng-submit="signup()" show-validation>
+                                <div class="form-group">
+                                    <label style="margin-left: 5px;"> Nombre de usuario: </label>
+                                    <input style="margin-left: auto; margin-right: auto; width: 95%;" type="text" class="form-control" name="username" placeholder="Nombre de usuario" ng-model="newuser.username" required="" oninvalid="this.setCustomValidity('Ingrese un nombre de usuario valido')" oninput="this.setCustomValidity('')">
+                                </div>
+                                <div>
+                                    <span class="help-block" ng-show="duplicatedUser"><p class="text-danger">El nombre de usuario ingresado no se encuentra disponible.</p></span>
+                                </div>
+                                <div class="form-group">
+                                    <label style="margin-left: 5px;"> Contrase&ntilde;a: </label>
+                                    <input style="margin-left: auto; margin-right: auto; width: 95%;" type="password" class="form-control" name="password" ng-model="newuser.password" required="" oninvalid="this.setCustomValidity('Ingrese una contrase&ntilde;a')" oninput="this.setCustomValidity('')" ng-min="8" ng-max="30">
+                                </div>
+                                <div>
+                                    <span class="help-block" ng-show="badPassword">La contrase&ntilde;a ingresada no es valida.</span>
+                                </div>
+                                <div class="form-group">
+                                    <label style="margin-left: 5px;"> Administrador: </label>
+                                    <input style="margin-left: auto; margin-right: auto; width: 95%;" type="checkbox" class="form-control" name="password" ng-model="newuser.admin" ng-click="newuser = {}">
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="submit" class="btn btn-primary">Guardar</button>
+                                    <button type="button" class="btn btn-default" data-dismiss="modal">Cancelar</button>
+                                </div>
+                            </form>
                         </div>
                     </div>
                 </div>
