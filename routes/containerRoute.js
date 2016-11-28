@@ -13,6 +13,32 @@ router.use(function timeLog(req, res, next) {
     next();
 });
 
+// ========== PUT endpoint to set percentageFull to 0 on all containers with percentageFull greater than request =====//
+router.put('/clear', function(req, res) {
+    var llenado = req.body.llenado;
+    console.log("Inside clear function with llenado " + llenado);
+    if (llenado !== undefined && llenado !== "") {
+        Container.find({ percentageFull: { $gt: llenado } }, function(err, containers) {
+            if (err) {
+                return next(err);
+            }
+            containers.forEach(function(container) {
+                console.log("Clearing percentageFull of container: " + container.containerId);
+                container.percentageFull = 0;
+                container.timesCleared = container.timesCleared + 1;
+                container.save(function(err, updatedContainer) {
+                    if (err) {
+                        return next(err);
+                    }
+                });
+            });
+            res.send("Containers updated successfully!");
+        });
+    } else {
+        res.send("Wrong parameter passed to the service !");
+    }
+});
+
 // ======= Create endpoint /api/containers for POSTS ============= //
 router.post('/container', function(req, res) {
     // Create a new instance of a Container
@@ -21,10 +47,9 @@ router.post('/container', function(req, res) {
 
     searchAddress(req.body.address, function(error, dir) {
         if (error) {
-            console.log('la cagaste', error);
+            console.log('Error attempting to call google maps geocoder', error);
             return res.status(500).send(error);
         }
-        console.log("Stringify : " + unescape(dir));
         cont.address = req.body.address;
         cont.lat = JSON.parse(dir).lat;
         cont.lng = JSON.parse(dir).lng;
@@ -73,6 +98,7 @@ router.get('/geocodedlist', function(req, res) {
             containerMap[container._id] = {
                 lat: container.lat,
                 lng: container.lng,
+                containerId: container.containerId,
                 percentageFull: container.percentageFull
             };
 
@@ -110,7 +136,6 @@ router.get('/test', function(req, res) {
 // ========= DELETE CONTAINER BY ID ==================== //
 router.delete('/delete', function(req, res) {
     var id = req.body.containerId;
- //   console.log("The request is: " + JSON.stringify(req));
     console.log("Attempting to delete container with id: " + id);
     Container.find({ containerId: id }).remove().exec();
 
@@ -124,16 +149,11 @@ function searchAddress(ad, callback) {
 
     geocoder.geocode(ad, function(results, status) {
         if (status.status == 'OK') {
-
-            //latLong = JSON.stringify(status.results[0].geometry.location); // reference LatLng value
             callback(null, JSON.stringify(status.results[0].geometry.location));
         } else { // if status value is not equal to "google.maps.GeocoderStatus.OK"
             callback(status, null);
-            // latLong = status;
-            // warning message
             console.log("The Geocode was not successful for the following reason: " + JSON.stringify(status));
         }
-        // callback();
     });
 }
 

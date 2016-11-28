@@ -3,7 +3,7 @@
         "tuberApp", [
             '$scope', '$http', '$timeout',
             function($scope, $http, $timeout) {
-                $scope.user = { "name": "ShummyLyn", "admin": true };
+                //$scope.user = { "name": "ShummyLyn", "admin": true };
                 $scope.newContainer = { "containerId": null, "percentageFull": 0, "lng": null, "lat": null, "address": null };
 
                 $scope.addContainer = function(jsonContainer) {
@@ -25,7 +25,6 @@
                                 type: 'success',
                                 timeout: 5000
                             });
-                            //   $scope.$apply();
                             $scope.newContainer = response.data;
                             $('#insertContainer').modal('hide');
                         },
@@ -33,7 +32,6 @@
                             $scope.addressError = 'Request failed' + " error code: " + response.data + response.data.status;
                         });
                 };
-
 
                 $scope.callFnOnInterval = function(fn, timeInterval) {
                     var timeIntervalInSec = 1;
@@ -43,7 +41,6 @@
                     return promise.then(function() {
                         $scope.callFnOnInterval(fn, timeInterval);
                     });
-                    //return $interval(fn, 1000 * timeInterval); 
                 };
 
                 $scope.getContainers = function() {
@@ -62,7 +59,7 @@
                         });
                 };
 
-                $scope.callFnOnInterval($scope.getContainers, 50000);
+                $scope.callFnOnInterval($scope.getContainers, 20000);
 
                 $scope.prepareToDelete = function(container) {
                     $scope.deleteContainer = container;
@@ -86,7 +83,6 @@
                                 type: 'success',
                                 timeout: 5000
                             });
-                            //  $scope.$apply();
                             $('#viewContainers').modal('hide');
                             $('#editContainer').modal('hide');
                         },
@@ -95,10 +91,56 @@
                         });
                 };
 
+                $scope.clearPercentage = function() {
+
+                    noty({
+                        text: 'Se vaciarán los contenedores llenos, confirme para continuar',
+                        theme: 'defaultTheme',
+                        layout: 'center',
+                        type: 'confirm',
+                        buttons: [{
+                            addClass: 'button',
+                            text: 'Continuar',
+                            onClick: function($noty) {
+                                $noty.close();
+
+                                var llenado = document.getElementById('llenado-minimo').value;
+                                var json = { "llenado": llenado };
+                                $http({
+                                    method: 'PUT',
+                                    url: '/api/clear',
+                                    headers: {
+                                        'Content-Type': 'application/json'
+                                    },
+                                    data: json
+                                }).then(
+                                    function(response) {
+                                        console.log(response.data);
+                                        noty({
+                                            text: "Los contenedores con porcentaje llenado mayor a " + llenado + " fueron vaciados correctamente.",
+                                            type: 'success',
+                                            timeout: 5000
+                                        });
+                                    },
+                                    function(response) {
+                                        $scope.addressError = 'Request failed' + " error code: " + response.data + response.data.status;
+                                    });
+
+                            }
+                        }, {
+                            addClass: 'button',
+                            text: 'Cancel',
+                            onClick: function($noty) {
+                                $noty.close();
+                            }
+                        }]
+                    });
+                };
+
                 $scope.login = function() {
                     if ($scope.user.username && $scope.user.password) {
                         $http({
-                            method: 'post',
+                            method: 'POST',
                             url: '/api/login',
                             headers: {
                                 'Content-Type': 'application/json'
@@ -106,26 +148,28 @@
                             data: $scope.user
                         }).then(
                             function(response) {
-                                console.log('te logueaste exitosamente ',response);
+                                console.log('Logueado exitosamente ', response);
                                 $scope.badLogin = {};
                                 $scope.user = response.data;
                                 $('#login').modal('hide');
                                 noty({
-                                text: "Te logueaste exitosamente " + $scope.user.username,
-                                type: 'success',
-                                timeout: 5000
+                                    text: "Logueado exitosamente " + $scope.user.username,
+                                    type: 'success',
+                                    timeout: 5000
                                 });
                             },
                             function(response) {
-                                console.log('la cagaste en el inicio de session',response);
+                                console.log('Error intentando iniciar sesión', response);
                                 $scope.badLogin = response.data;
                             });
                     }
                 };
+
+                // SIGN UP METHOD
                 $scope.signup = function() {
-                    if ($scope.newuser.username && $scope.newuser.password) {
+                    if ($scope.newuser.username && $scope.newuser.password && $scope.newuser.firstName && $scope.newuser.lastName) {
                         $http({
-                            method: 'post',
+                            method: 'POST',
                             url: '/api/user',
                             headers: {
                                 'Content-Type': 'application/json'
@@ -137,9 +181,9 @@
                                 $scope.duplicatedUser = {};
                                 $('#signup').modal('hide');
                                 noty({
-                                text: "Te registraste exitosamente " + $scope.newuser.username,
-                                type: 'success',
-                                timeout: 5000
+                                    text: "Te registraste exitosamente " + $scope.newuser.username,
+                                    type: 'success',
+                                    timeout: 5000
                                 });
                             },
                             function(response) {

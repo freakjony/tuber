@@ -16,6 +16,13 @@ db.once('open', function callback() {
     console.log('Connected to DB');
 });
 
+var allowCrossDomain = function(req, res, next) {
+    res.header('Access-Control-Allow-Origin', '*');
+    res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE');
+    res.header('Access-Control-Allow-Headers', 'Content-Type');
+    next();
+}
+
 app.use(express.static(__dirname + '/WebContent')); // set the static files location /public/img will be /img for users
 app.use("/node_modules", express.static('node_modules'));
 app.use(morgan('dev')); // log every request to the console
@@ -23,14 +30,16 @@ app.use(bodyParser.urlencoded({ 'extended': 'true' })); // parse application/x-w
 app.use(bodyParser.json()); // parse application/json
 app.use(bodyParser.json({ type: 'application/vnd.api+json' })); // parse application/vnd.api+json as json
 app.use(methodOverride());
+app.use(allowCrossDomain);
 
 var router = express.Router();
 var Container = require('./models/container');
 var containerRoute = require('./routes/containerRoute');
-var Container = require('./models/user');
-var containerRoute = require('./routes/userRoute');
+var User = require('./models/user');
+var userRoute = require('./routes/userRoute');
 
 app.use('/api', containerRoute);
+app.use('/api', userRoute);
 
 // listen (start app with node server.js) ======================================
 // process.env.PORT when deployed in Heroku, port 5000 for local testing.

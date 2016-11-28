@@ -6,8 +6,8 @@
     <meta name="viewport" content="width=device-width, maximum-scale=1">
     <title>Proyecto Tuber UTN</title>
     <link rel="icon" href="/favicon.ico">
-    <link href='http://fonts.googleapis.com/css?family=Montserrat:400,700' rel='stylesheet' type='text/css'>
-    <link href='http://fonts.googleapis.com/css?family=Open+Sans:400,300,800italic,700italic,600italic,400italic,300italic,800,700,600' rel='stylesheet' type='text/css'>
+    <link href='//fonts.googleapis.com/css?family=Montserrat:400,700' rel='stylesheet' type='text/css'>
+    <link href='//fonts.googleapis.com/css?family=Open+Sans:400,300,800italic,700italic,600italic,400italic,300italic,800,700,600' rel='stylesheet' type='text/css'>
     <link href="css/bootstrap.css" rel="stylesheet" type="text/css">
     <link href="css/style.css" rel="stylesheet" type="text/css">
     <link href="css/font-awesome.css" rel="stylesheet" type="text/css">
@@ -36,15 +36,15 @@
 <![endif]-->
 </head>
 
-<body onload=initMap()>
+<body onload=initMap() ng-controller="tuberApp">
     <div style="overflow:hidden;">
         <header class="header" id="header">
             <!--header-start-->
             <div class="container">
+                <h1 class="animated fadeInDown delay-07s">Bienvenidos a</h1>
                 <figure class="small-logo">
                     <a href="#"><img src="img/LogoNuevo.png" alt=""></a>
                 </figure>
-                <h1 class="animated fadeInDown delay-07s">Bienvenidos a Sistema Tuber</h1>
                 <ul class="we-create animated fadeInUp delay-1s">
                     <li>Sistema inteligente de medición de residuos.</li>
                 </ul>
@@ -63,9 +63,8 @@
                     <a href="#header"><img src="img/LogoNuevoSmall.png" alt=""></a>
                 </li>
                 <li><a href="#team">Armar recorrido</a></li>
-                <li><a href="#contact">Contacto</a></li>
-                <li><a href="#login" data-toggle="modal" data-target="#login"> Iniciar Sesi&oacute;n</a></li>
-                <li><a href="#signup" data-toggle="modal" data-target="#signup"> Registrarse</a></li>
+                <li ng-if="!user"><a href="#logueo" data-toggle="modal" data-target="#logueo">Identificarse</a></li>
+                <li ng-if="user"><a href="#logueo" data-toggle="modal" data-target="#logueo">Mi perfil</a></li>
             </ul>
             <a class="res-nav_click" href="#"><i class="fa-bars"></i></a>
         </div>
@@ -104,34 +103,49 @@
         </div>
     </section>
     <section class="main-section team" id="team">
-        <div class="container" ng-controller="tuberApp">
+        <div class="container">
             <h2>Muestra de recorrido más corto</h2>
             <h6>El siguiente ejemplo demuestra el camino más corto para recolectar los residuos de los contenedores.</h6>
             <div class="team-leader-block clearfix">
-                <form class="form-inline">
+                <form class="form-inline" style="display:inline;">
                     <div class="form-group" style="margin-right:20px 10px !important;">
                         <h3>Punto de partida: </h3>
-                        <input id="starting-point" type="text" placeholder="San Juan 500, Corrientes, Corrientes" style="width: 95%;">
+                        <input ng-if="user.admin" id="starting-point" type="text" placeholder="San Juan 500, Corrientes, Corrientes" style="width: 95%;">
+                        <input ng-if="!user.admin" readonly id="starting-point" type="text" placeholder="San Juan 500, Corrientes, Corrientes" style="width: 95%;">
                     </div>
                     <div class="form-group" style="margin-right:20px 10px !important;">
                         <h3>Punto crítico de llenado: </h3>
                         <input id="llenado-minimo" type="number" placeholder="60" style="width: 95%;">
+                        
                     </div>
                     <div class="form-group" style="margin-right:20px 10px !important;">
                         <h3>Insertar contenedor: </h3>
-                        <button type="button" data-toggle="modal" data-target="#insertContainer" style="width: 95%;">Nuevo contenedor</button>
+                        <button ng-if="user.admin" type="button" data-toggle="modal" data-target="#insertContainer" style="width: 95%;">Nuevo contenedor</button>
+                        <button ng-if="!user.admin" type="button" title="Función habilitada para Administradores" disabled style="width: 95%;">Nuevo contenedor</button>
                     </div>
                     <div class="form-group" style="margin-right:20px 10px !important;">
                         <h3>Estado contenedores: </h3>
                         <button type="button" data-toggle="modal" data-target="#viewContainers" style="width: 95%;">Ver contenedores</button>
                     </div>
-                    <div>
-                        <input type="submit" id="submit" value="Calcular recorrido">
+                    <div class="form-group">
+                        <input type="submit" id="submit" value="Calcular recorrido" style="margin-right: 3em;"> 
+                        <input ng-if="user.admin" type="submit" id="recogerContenedores" value="Vaciar contenedores" ng-click="clearPercentage()">       
                     </div>
+                    
                 </form>
                 <div id="map" style="width: 900px;height: 400px;"></div>
             </div>
             <!-- PANTALLAS MODALES -->
+            <div id="logueo" class="modal fade" role="dialog">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <ul class="main-nav">
+                            <li><a href="#login" data-toggle="modal" data-target="#login"> Iniciar Sesi&oacute;n</a></li>
+                            <li><a href="#signup" data-toggle="modal" data-target="#signup"> Registrarse</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
             <div id="insertContainer" class="modal fade" role="dialog">
                 <div class="modal-dialog">
                     <div class="modal-content">
@@ -146,7 +160,7 @@
                                     <input style="margin-left: auto; margin-right: auto; width: 95%;" type="text" class="form-control" name="name" placeholder="Calle número, Ciudad, Provincia" ng-model="newContainer.address" required="" oninvalid="this.setCustomValidity('Ingrese una dirección válida')" oninput="this.setCustomValidity('')">
                                 </div>
                                 <div>
-                                    <span class="help-block" ng-show="addressError">La direccion ingresada no es valida</span>
+                                    <span class="help-block" ng-show="addressError">La direccion ingresada no es válida</span>
                                 </div>
                                 <div class="form-group">
                                     <label style="margin-left: 5px;"> Container Id: </label>
@@ -164,6 +178,85 @@
                 </div>
             </div>
             <!-- PANTALLAS MODALES -->
+            <div id="login" class="modal fade" role="dialog">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <button type="button" class="close" data-dismiss="modal">&times;</button>
+                            <h4 class="modal-title" style="text-align: center;">Iniciar Sesi&oacute;n</h4>
+                        </div>
+                        <div class="modal-body">
+                            <form name="editForm" role="form" ng-submit="login()" show-validation>
+                                <div class="form-group">
+                                    <label style="margin-left: 5px;"> Nombre de usuario: </label>
+                                    <input style="margin-left: auto; margin-right: auto; width: 95%;" type="text" class="form-control" name="username" placeholder="Nombre de usuario" ng-model="user.username" required oninvalid="this.setCustomValidity('Ingrese un nombre de usuario valido')" oninput="this.setCustomValidity('')">
+                                </div>
+                                <div>
+                                    <span class="help-block" ng-show="badLogin"><p class="text-danger">{{badLogin}}</p></span>
+                                </div>
+                                <div class="form-group">
+                                    <label style="margin-left: 5px;"> Contrase&ntilde;a: </label>
+                                    <input style="margin-left: auto; margin-right: auto; width: 95%;" type="password" class="form-control" name="password" ng-model="user.password" required="" oninvalid="this.setCustomValidity('Ingrese una contrase&ntilde;a')" oninput="this.setCustomValidity('')">
+                                </div>
+                                <div class="form-row">
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="submit" class="btn btn-primary">Iniciar Sesi&oacute;n</button>
+                                    <button type="button" class="btn btn-default" data-dismiss="modal" ng-click="user = {}">Cancelar</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div id="signup" class="modal fade" role="dialog">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <button type="button" class="close" data-dismiss="modal">&times;</button>
+                            <h4 class="modal-title" style="text-align: center;">Registrarse</h4>
+                        </div>
+                        <div class="modal-body">
+                            <form name="signupForm" role="form" ng-submit="signup()" show-validation>
+                                <div class="form-group">
+                                    <label style="margin-left: 5px;"> Nombre de usuario: </label>
+                                    <input style="margin-left: auto; margin-right: auto; width: 95%;" type="text" class="form-control" name="username" placeholder="Nombre de usuario" ng-model="newuser.username" required="" oninvalid="this.setCustomValidity('Ingrese un nombre de usuario valido')" oninput="this.setCustomValidity('')">
+                                </div>
+                                <div>
+                                    <span class="help-block" ng-show="duplicatedUser"><p class="text-danger">El nombre de usuario ingresado no se encuentra disponible.</p></span>
+                                </div>
+                                <div class="form-group">
+                                    <label style="margin-left: 5px;"> Contrase&ntilde;a: </label>
+                                    <input style="margin-left: auto; margin-right: auto; width: 95%;" type="password" class="form-control" name="password" ng-model="newuser.password" required="" oninvalid="this.setCustomValidity('Ingrese una contrase&ntilde;a')" oninput="this.setCustomValidity('')" ng-min="8" ng-max="30">
+                                </div>
+                                <div class="form-group">
+                                    <label style="margin-left: 5px;"> Correo: </label>
+                                    <input style="margin-left: auto; margin-right: auto; width: 95%;" type="text" class="form-control" name="email" ng-model="newuser.email" oninput="this.setCustomValidity('')" ng-min="8" ng-max="30">
+                                </div>
+                                <div class="form-group">
+                                    <label style="margin-left: 5px;"> Nombres: </label>
+                                    <input style="margin-left: auto; margin-right: auto; width: 95%;" type="text" class="form-control" name="firstName" ng-model="newuser.firstName" required="" oninvalid="this.setCustomValidity('Ingrese un nombre')" oninput="this.setCustomValidity('')" ng-min="2" ng-max="30">
+                                </div>
+                                <div class="form-group">
+                                    <label style="margin-left: 5px;"> Apellido: </label>
+                                    <input style="margin-left: auto; margin-right: auto; width: 95%;" type="text" class="form-control" name="lastName" ng-model="newuser.lastName" required="" oninvalid="this.setCustomValidity('Ingrese un apellido')" oninput="this.setCustomValidity('')" ng-min="2" ng-max="30">
+                                </div>
+                                <div>
+                                    <span class="help-block" ng-show="badPassword">La contrase&ntilde;a ingresada no es valida.</span>
+                                </div>
+                                <!--<div class="form-group">
+                                    <label style="margin-left: 5px;"> Administrador: </label>
+                                    <input style="margin-left: auto; margin-right: auto; width: 95%;" type="checkbox" class="form-control" name="password" ng-model="newuser.admin" ng-click="newuser = {}">
+                                </div> -->
+                                <div class="modal-footer">
+                                    <button type="submit" class="btn btn-primary">Guardar</button>
+                                    <button type="button" class="btn btn-default" data-dismiss="modal">Cancelar</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
             <div id="viewContainers" class="modal fade" role="dialog">
                 <div class="modal-dialog">
                     <div class="modal-content">
@@ -222,117 +315,16 @@
                     </div>
                 </div>
             </div>
-
-            <div id="login" class="modal fade" role="dialog">
-                <div class="modal-dialog">
-                    <div class="modal-content">
-                        <div class="modal-header">
-                            <button type="button" class="close" data-dismiss="modal">&times;</button>
-                            <h4 class="modal-title" style="text-align: center;">Iniciar Sesi&oacute;n</h4>
-                        </div>
-                        <div class="modal-body">
-                            <form name="editForm" role="form" ng-submit="login()" show-validation>
-                                <div class="form-group">
-                                    <label style="margin-left: 5px;"> Nombre de usuario: </label>
-                                    <input style="margin-left: auto; margin-right: auto; width: 95%;" type="text" class="form-control" name="username" placeholder="Nombre de usuario" ng-model="user.username" required oninvalid="this.setCustomValidity('Ingrese un nombre de usuario valido')" oninput="this.setCustomValidity('')">
-                                </div>
-                                <div>
-                                    <span class="help-block" ng-show="badLogin"><p class="text-danger">{{badLogin}}</p></span>
-                                </div>
-                                <div class="form-group">
-                                    <label style="margin-left: 5px;"> Contrase&ntilde;a: </label>
-                                    <input style="margin-left: auto; margin-right: auto; width: 95%;" type="password" class="form-control" name="password" ng-model="user.password" required="" oninvalid="this.setCustomValidity('Ingrese una contrase&ntilde;a')" oninput="this.setCustomValidity('')">
-                                </div>
-                                <div class="form-row">
-                                </div>
-                                <div class="modal-footer">
-                                    <button type="submit" class="btn btn-primary">Iniciar Sesi&oacute;n</button>
-                                    <button type="button" class="btn btn-default" data-dismiss="modal" ng-click="user = {}">Cancelar</button>
-                                </div>
-                            </form>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div id="signup" class="modal fade" role="dialog">
-                <div class="modal-dialog">
-                    <div class="modal-content">
-                        <div class="modal-header">
-                            <button type="button" class="close" data-dismiss="modal">&times;</button>
-                            <h4 class="modal-title" style="text-align: center;">Registrarse</h4>
-                        </div>
-                        <div class="modal-body">
-                            <form name="signupForm" role="form" ng-submit="signup()" show-validation>
-                                <div class="form-group">
-                                    <label style="margin-left: 5px;"> Nombre de usuario: </label>
-                                    <input style="margin-left: auto; margin-right: auto; width: 95%;" type="text" class="form-control" name="username" placeholder="Nombre de usuario" ng-model="newuser.username" required="" oninvalid="this.setCustomValidity('Ingrese un nombre de usuario valido')" oninput="this.setCustomValidity('')">
-                                </div>
-                                <div>
-                                    <span class="help-block" ng-show="duplicatedUser"><p class="text-danger">El nombre de usuario ingresado no se encuentra disponible.</p></span>
-                                </div>
-                                <div class="form-group">
-                                    <label style="margin-left: 5px;"> Contrase&ntilde;a: </label>
-                                    <input style="margin-left: auto; margin-right: auto; width: 95%;" type="password" class="form-control" name="password" ng-model="newuser.password" required="" oninvalid="this.setCustomValidity('Ingrese una contrase&ntilde;a')" oninput="this.setCustomValidity('')" ng-min="8" ng-max="30">
-                                </div>
-                                <div>
-                                    <span class="help-block" ng-show="badPassword">La contrase&ntilde;a ingresada no es valida.</span>
-                                </div>
-                                <div class="form-group">
-                                    <label style="margin-left: 5px;"> Administrador: </label>
-                                    <input style="margin-left: auto; margin-right: auto; width: 95%;" type="checkbox" class="form-control" name="password" ng-model="newuser.admin" ng-click="newuser = {}">
-                                </div>
-                                <div class="modal-footer">
-                                    <button type="submit" class="btn btn-primary">Guardar</button>
-                                    <button type="button" class="btn btn-default" data-dismiss="modal">Cancelar</button>
-                                </div>
-                            </form>
-                        </div>
-                    </div>
-                </div>
-            </div>
         </div>
         </div>
     </section>
-    <section class="business-talking">
-        <div class="container">
-            <h2>Cómo contactarnos</h2>
-        </div>
-    </section>
-    <div class="container">
-        <section class="main-section contact" id="contact">
-            <div class="row">
-                <div class="col-lg-6 col-sm-7 wow fadeInLeft">
-                    <div class="contact-info-box address clearfix">
-                        <h3><i class=" icon-map-marker"></i>Dirección:</h3>
-                        <span>Calle French 414 <br>Resistencia, Chaco, Argentina.</span>
-                    </div>
-                    <div class="contact-info-box phone clearfix">
-                        <h3><i class="fa-phone"></i>Celular:</h3>
-                        <span>54-379 4617896</span>
-                    </div>
-                    <div class="contact-info-box email clearfix">
-                        <h3><i class="fa-pencil"></i>Email:</h3>
-                        <span>santiagoschumacher@hotmail.com</span>
-                    </div>
-                </div>
-                <div class="col-lg-6 col-sm-5 wow fadeInUp delay-05s">
-                    <div class="form">
-                        <input class="input-text" type="text" name="" value="Your Name *" onfocus="if(this.value==this.defaultValue)this.value='';" onblur="if(this.value=='')this.value=this.defaultValue;">
-                        <input class="input-text" type="text" name="" value="Your E-mail *" onfocus="if(this.value==this.defaultValue)this.value='';" onblur="if(this.value=='')this.value=this.defaultValue;">
-                        <textarea class="input-text text-area" cols="0" rows="0" onfocus="if(this.value==this.defaultValue)this.value='';" onblur="if(this.value=='')this.value=this.defaultValue;">Your Message *</textarea>
-                        <input class="input-btn" type="submit" value="send message">
-                    </div>
-                </div>
-            </div>
-        </section>
-    </div>
+   
     <footer class="footer">
         <div class="container">
             <div class="main-nav">
                 <a href="#"><img src="img/LogoNuevo.png" style="width: 30%; margin-bottom: 15px;" alt=""></a>
             </div>
-            <span class="copyright">UTN Facultad Regional Resistencia. Integrantes: Bode, Augusto; Silva, Omar; Simon, Francisco, Schumacher, Santiago</span>
+            <span class="copyright">UTN Facultad Regional Resistencia. Integrantes: Britez Adaime, Arturo; Bode, Augusto; Silva, Omar; Simon, Francisco; Schumacher, Santiago</span>
         </div>
     </footer>
     <script type="text/javascript">

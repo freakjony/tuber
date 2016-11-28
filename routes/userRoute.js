@@ -16,6 +16,9 @@ router.post('/user', function(req, res) {
     user1.username = req.body.username;
     user1.password = req.body.password;
     user1.admin = req.body.admin;
+    user1.firstName = req.body.firstName;
+    user1.lastName = req.body.lastName;
+    user1.email = req.body.email;
 
     //Save the user in DB and check for errors
     user1.save(function(err) {

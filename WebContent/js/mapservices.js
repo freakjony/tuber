@@ -32,8 +32,7 @@ function calculateAndDisplayRoute(directionsService, directionsDisplay) {
             });
         };
 
-        var startingPoint = document.getElementById('starting-point');
-
+        var startingPoint = document.getElementById('starting-point').value;
         directionsService.route({
             origin: startingPoint.length > 0 ? startingPoint : 'San Juan 500, Corrientes, Corrientes',
             destination: startingPoint.length > 0 ? startingPoint : 'San Juan 500, Corrientes, Corrientes',
@@ -54,7 +53,8 @@ function calculateAndDisplayRoute(directionsService, directionsDisplay) {
             if (response[v].lat !== undefined) {
                 var feature = {
                     position: new google.maps.LatLng(response[v].lat, response[v].lng),
-                    percentageFull: response[v].percentageFull
+                    percentageFull: response[v].percentageFull,
+                    containerId: response[v].containerId
                 }
                 addMarker(feature, llenado);
 
@@ -79,9 +79,11 @@ function httpGetAsync(theUrl, callback) {
 
 function addMarker(feature, llenado) {
     console.log("Feature: " + feature.position);
+    console.log("Container ID: " + feature.containerId);
     var marker = new google.maps.Marker({
         position: feature.position,
-        icon: feature.percentageFull >= llenado ? './img/basureroRojo.png' : './img/basureroVerde.png',   //'./img/containerIcon.png',
+        title: feature.containerId,
+        icon: feature.percentageFull > llenado ? './img/basureroRojo.png' : './img/basureroVerde.png',   //'./img/containerIcon.png',
         map: map
     });
 }

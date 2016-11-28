@@ -7,7 +7,8 @@ var ContainerSchema   = new mongoose.Schema({
   lat: Number,
   lng: Number,
   address: String,
-  percentageFull: Number // Number from 0 to 100
+  percentageFull: Number, // Number from 0 to 100
+  timesCleared: {type: Number, default: 0 }
 });
 
 // Export the Mongoose model
