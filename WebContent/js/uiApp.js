@@ -1,9 +1,9 @@
-    var app = angular.module("ngMap", []);
+    var app = angular.module("ngMap", ["ng-fusioncharts"]);
     app.controller(
         "tuberApp", [
             '$scope', '$http', '$timeout',
             function($scope, $http, $timeout) {
-                //$scope.user = { "name": "ShummyLyn", "admin": true };
+                $scope.user = { "name": "ShummyLyn", "admin": true };
                 $scope.newContainer = { "containerId": null, "percentageFull": 0, "lng": null, "lat": null, "address": null };
 
                 $scope.addContainer = function(jsonContainer) {
@@ -66,8 +66,6 @@
                 };
 
                 $scope.delete = function() {
-                    console.log("Inside delete angular function");
-                    console.log($scope.deleteContainer);
                     $http({
                         method: 'DELETE',
                         url: '/api/delete',
@@ -152,6 +150,7 @@
                                 $scope.badLogin = {};
                                 $scope.user = response.data;
                                 $('#login').modal('hide');
+                                $('#logueo').modal('hide');
                                 noty({
                                     text: "Logueado exitosamente " + $scope.user.username,
                                     type: 'success',
@@ -191,5 +190,28 @@
                             });
                     }
                 };
+
+                $scope.dataSource = {};
+                $scope.estadistica = function() {
+                    var log = [];
+                    angular.forEach($scope.containers, function(value, index) {
+                        var myObj = {
+                            label: value.containerId, //your artist variable
+                            value: "" + value.timesCleared + "" //your title variable
+                        };
+                        this.push(myObj);
+                    }, log);
+
+                    // chart data source
+                    $scope.dataSource = {
+                        chart: {
+                            caption: "Estadísticas de los contenedores",
+                            captionFontSize: "24",
+                            // more chart properties - explained later
+                        },
+                        data: log
+                    };
+                }
+
             }
         ]);

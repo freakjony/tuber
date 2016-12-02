@@ -29,6 +29,14 @@
     <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.5.8/angular.min.js"></script>
     <script src="/node_modules/ngmap/build/scripts/ng-map.min.js"></script>
     <script type="text/javascript" src="js/uiApp.js"></script>
+
+    <!-- FusionCharts library-->
+    <script type="text/javascript" src="fusionCharts/js/fusioncharts.js"></script>
+    <script type="text/javascript" src="fusionCharts/js/fusioncharts.charts.js"></script>
+
+    <!-- Angular plugin -->
+    <script type="text/javascript" src="fusionCharts/angular-fusioncharts.min.js"></script>
+
     <!--[if lt IE 9]>
     <script src="js/respond-1.1.0.min.js"></script>
     <script src="js/html5shiv.js"></script>
@@ -57,14 +65,16 @@
         <!--main-nav-start-->
         <div class="container">
             <ul class="main-nav">
-                <li><a href="#header">Inicio</a></li>
+                <li ng-if="!user"><a href="#logueo" data-toggle="modal" data-target="#logueo">Identificarse</a></li>
+                <li ng-if="user"><a href="#logueo" data-toggle="modal" data-target="#logueo">Mi perfil</a></li>
                 <li><a href="#service">Como funciona</a></li>
                 <li class="small-logo">
                     <a href="#header"><img src="img/LogoNuevoSmall.png" alt=""></a>
                 </li>
-                <li><a href="#team">Armar recorrido</a></li>
-                <li ng-if="!user"><a href="#logueo" data-toggle="modal" data-target="#logueo">Identificarse</a></li>
-                <li ng-if="user"><a href="#logueo" data-toggle="modal" data-target="#logueo">Mi perfil</a></li>
+                <li><a href="#team">Recorrido</a></li>
+                <li ng-if="!user.admin">
+                    <a title="Función habilitada para Administradores" disabled ">Estadísticas</a></li>
+                <li ng-if="user.admin"><a href="#estadisticas" data-toggle="modal" data-target="#estadisticas" ng-click="estadistica()">Estadísticas</a></li>
             </ul>
             <a class="res-nav_click" href="#"><i class="fa-bars"></i></a>
         </div>
@@ -79,7 +89,7 @@
                 <div class="col-lg-7 col-sm-6 wow fadeInLeft delay-05s">
                     <div class="service-list">
                         <div class="service-list-col1">
-                            <img alt="" src="img/LogoArduino.png" />
+                            <img alt="" src="img/LogoArduino.png"/>
                         </div>
                         <div class="service-list-col2">
                             <h3>Arduino</h3>
@@ -88,7 +98,7 @@
                     </div>
                     <div class="service-list">
                         <div class="service-list-col1">
-                            <img alt="" src="img/GoogleMapsLogo.png" />
+                            <img alt="" src="img/GoogleMapsLogo.png"/>
                         </div>
                         <div class="service-list-col2">
                             <h3>Aplicación Web</h3>
@@ -96,8 +106,8 @@
                         </div>
                     </div>
                 </div>
-                <figure class="col-lg-5 col-sm-6  text-right wow fadeInUp delay-02s">
-                    <img src="img/arduino.png" alt="">
+                <figure class="col-lg-5 col-sm-6 text-right wow fadeInUp delay-02s ">
+                    <img src="img/arduino.png" alt=" ">
                 </figure>
             </div>
         </div>
@@ -106,36 +116,54 @@
         <div class="container">
             <h2>Muestra de recorrido más corto</h2>
             <h6>El siguiente ejemplo demuestra el camino más corto para recolectar los residuos de los contenedores.</h6>
-            <div class="team-leader-block clearfix">
+            <div class="team-leader-block clearfix ">
                 <form class="form-inline" style="display:inline;">
                     <div class="form-group" style="margin-right:20px 10px !important;">
                         <h3>Punto de partida: </h3>
-                        <input ng-if="user.admin" id="starting-point" type="text" placeholder="San Juan 500, Corrientes, Corrientes" style="width: 95%;">
-                        <input ng-if="!user.admin" readonly id="starting-point" type="text" placeholder="San Juan 500, Corrientes, Corrientes" style="width: 95%;">
+                        <input ng-if="user.admin" id="starting-point" type="text" placeholder="San Juan 500, Corrientes, Corrientes " style="width: 95%; ">
+                        <input ng-if="!user.admin" readonly id="starting-point " type="text " placeholder="San Juan 500, Corrientes, Corrientes " style="width: 95%; ">
                     </div>
-                    <div class="form-group" style="margin-right:20px 10px !important;">
+                    <div class="form-group" style="margin-right:20px 10px !important; ">
                         <h3>Punto crítico de llenado: </h3>
-                        <input id="llenado-minimo" type="number" placeholder="60" style="width: 95%;">
-                        
+                        <input id="llenado-minimo" type="number" placeholder="60" style="width: 95%; ">
                     </div>
-                    <div class="form-group" style="margin-right:20px 10px !important;">
+                    <div class="form-group" style="margin-right:20px 10px !important; ">
                         <h3>Insertar contenedor: </h3>
-                        <button ng-if="user.admin" type="button" data-toggle="modal" data-target="#insertContainer" style="width: 95%;">Nuevo contenedor</button>
-                        <button ng-if="!user.admin" type="button" title="Función habilitada para Administradores" disabled style="width: 95%;">Nuevo contenedor</button>
+                        <button ng-if="user.admin" type="button" data-toggle="modal" data-target="#insertContainer " style="width: 95%; ">Nuevo contenedor</button>
+                        <button ng-if="!user.admin" type="button" title="Función habilitada para Administradores " disabled style="width: 95%; ">Nuevo contenedor</button>
                     </div>
-                    <div class="form-group" style="margin-right:20px 10px !important;">
+                    <div class="form-group" style="margin-right:20px 10px !important; ">
                         <h3>Estado contenedores: </h3>
-                        <button type="button" data-toggle="modal" data-target="#viewContainers" style="width: 95%;">Ver contenedores</button>
+                        <button type="button" data-toggle="modal " data-target="#viewContainers" style="width: 95%; ">Ver contenedores</button>
                     </div>
                     <div class="form-group">
-                        <input type="submit" id="submit" value="Calcular recorrido" style="margin-right: 3em;"> 
-                        <input ng-if="user.admin" type="submit" id="recogerContenedores" value="Vaciar contenedores" ng-click="clearPercentage()">       
+                        <input type="submit" id="submit" value="Calcular recorrido " style="margin-right: 3em; ">
+                        <input ng-if="user.admin" type="submit " id="recogerContenedores" value="Vaciar contenedores" ng-click="clearPercentage()">
                     </div>
-                    
                 </form>
-                <div id="map" style="width: 900px;height: 400px;"></div>
+                <div id="map" style="width: 900px;height: 400px; "></div>
             </div>
-            <!-- PANTALLAS MODALES -->
+            <!-- PANTALLAS MODALES -->  
+            <div id="estadisticas" class="modal fade" role="dialog" data-target="#estadistica">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <button type="button" class="close" data-dismiss="modal">&times;</button>
+                            <h4 class="modal-title" style="text-align: center; ">Contenedores llenados más frecuentemente</h4>
+                        </div>
+                        <fusioncharts 
+        width= "100%"
+        height= "400"
+        type= "column2d"
+        dataFormat= "json"
+        dataSource= "{{dataSource}}">
+    </fusioncharts>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-default" data-dismiss="modal">Cerrar</button>
+                        </div>
+                    </div>
+                </div> 
+            </div> 
             <div id="logueo" class="modal fade" role="dialog">
                 <div class="modal-dialog">
                     <div class="modal-content">
@@ -154,17 +182,17 @@
                             <h4 class="modal-title">Insertar un nuevo Contenedor.</h4>
                         </div>
                         <div>
-                            <form name="editForm" role="form" ng-submit="addContainer(newContainer)" show-validation>
+                            <form name="editForm"  role="form" ng-submit="addContainer(newContainer)" show-validation>
                                 <div class="form-group">
-                                    <label style="margin-left: 5px;"> Dirección: </label>
-                                    <input style="margin-left: auto; margin-right: auto; width: 95%;" type="text" class="form-control" name="name" placeholder="Calle número, Ciudad, Provincia" ng-model="newContainer.address" required="" oninvalid="this.setCustomValidity('Ingrese una dirección válida')" oninput="this.setCustomValidity('')">
+                                    <label style="margin-left: 5px; "> Dirección: </label>
+                                    <input style="margin-left: auto; margin-right: auto; width: 95%; " type="text " class="form-control " name="name " placeholder="Calle número, Ciudad, Provincia " ng-model="newContainer.address " required=" " oninvalid="this.setCustomValidity( 'Ingrese una dirección válida') " oninput="this.setCustomValidity( '') ">
                                 </div>
                                 <div>
                                     <span class="help-block" ng-show="addressError">La direccion ingresada no es válida</span>
                                 </div>
                                 <div class="form-group">
-                                    <label style="margin-left: 5px;"> Container Id: </label>
-                                    <input style="margin-left: auto; margin-right: auto; width: 95%;" type="text" class="form-control" name="container-id" ng-model="newContainer.containerId" required="" oninvalid="this.setCustomValidity('Ingresar un identificador')" oninput="this.setCustomValidity('')">
+                                    <label style="margin-left: 5px; "> Container Id: </label>
+                                    <input style="margin-left: auto; margin-right: auto; width: 95%; " type="text " class="form-control " name="container-id " ng-model="newContainer.containerId " required=" " oninvalid="this.setCustomValidity( 'Ingresar un identificador') " oninput="this.setCustomValidity( '') ">
                                 </div>
                                 <div class="form-row">
                                 </div>
@@ -183,74 +211,74 @@
                     <div class="modal-content">
                         <div class="modal-header">
                             <button type="button" class="close" data-dismiss="modal">&times;</button>
-                            <h4 class="modal-title" style="text-align: center;">Iniciar Sesi&oacute;n</h4>
+                            <h4 class="modal-title" style="text-align: center; ">Iniciar Sesi&oacute;n</h4>
                         </div>
                         <div class="modal-body">
                             <form name="editForm" role="form" ng-submit="login()" show-validation>
                                 <div class="form-group">
-                                    <label style="margin-left: 5px;"> Nombre de usuario: </label>
-                                    <input style="margin-left: auto; margin-right: auto; width: 95%;" type="text" class="form-control" name="username" placeholder="Nombre de usuario" ng-model="user.username" required oninvalid="this.setCustomValidity('Ingrese un nombre de usuario valido')" oninput="this.setCustomValidity('')">
+                                    <label style="margin-left: 5px; "> Nombre de usuario: </label>
+                                    <input style="margin-left: auto; margin-right: auto; width: 95%; " type="text" class="form-control" name="username" placeholder="Nombre de usuario" ng-model="user.username" required oninvalid="this.setCustomValidity( 'Ingrese un nombre de usuario valido')" oninput="this.setCustomValidity('')">
                                 </div>
                                 <div>
                                     <span class="help-block" ng-show="badLogin"><p class="text-danger">{{badLogin}}</p></span>
                                 </div>
                                 <div class="form-group">
                                     <label style="margin-left: 5px;"> Contrase&ntilde;a: </label>
-                                    <input style="margin-left: auto; margin-right: auto; width: 95%;" type="password" class="form-control" name="password" ng-model="user.password" required="" oninvalid="this.setCustomValidity('Ingrese una contrase&ntilde;a')" oninput="this.setCustomValidity('')">
+                                    <input style="margin-left: auto; margin-right: auto; width: 95%;" type="password" class="form-control " name="password" ng-model="user.password" required="" oninvalid="this.setCustomValidity( 'Ingrese una contrase&ntilde;a') " oninput="this.setCustomValidity( '') ">
                                 </div>
                                 <div class="form-row">
                                 </div>
                                 <div class="modal-footer">
                                     <button type="submit" class="btn btn-primary">Iniciar Sesi&oacute;n</button>
-                                    <button type="button" class="btn btn-default" data-dismiss="modal" ng-click="user = {}">Cancelar</button>
+                                    <button type="button" class="btn btn-default" data-dismiss="modal" ng-click="user={ }">Cancelar</button>
                                 </div>
                             </form>
                         </div>
                     </div>
                 </div>
             </div>
-            <div id="signup" class="modal fade" role="dialog">
+            <div id="signup" class="modal fade" role="dialog ">
                 <div class="modal-dialog">
                     <div class="modal-content">
                         <div class="modal-header">
                             <button type="button" class="close" data-dismiss="modal">&times;</button>
-                            <h4 class="modal-title" style="text-align: center;">Registrarse</h4>
+                            <h4 class="modal-title" style="text-align: center; ">Registrarse</h4>
                         </div>
                         <div class="modal-body">
                             <form name="signupForm" role="form" ng-submit="signup()" show-validation>
                                 <div class="form-group">
-                                    <label style="margin-left: 5px;"> Nombre de usuario: </label>
-                                    <input style="margin-left: auto; margin-right: auto; width: 95%;" type="text" class="form-control" name="username" placeholder="Nombre de usuario" ng-model="newuser.username" required="" oninvalid="this.setCustomValidity('Ingrese un nombre de usuario valido')" oninput="this.setCustomValidity('')">
+                                    <label style="margin-left: 5px; "> Nombre de usuario: </label>
+                                    <input style="margin-left: auto; margin-right: auto; width: 95%; " type="text" class="form-control" name="username" placeholder="Nombre de usuario" ng-model="newuser.username" required="" oninvalid="this.setCustomValidity('Ingrese un nombre de usuario valido')" oninput="this.setCustomValidity('')">
                                 </div>
                                 <div>
                                     <span class="help-block" ng-show="duplicatedUser"><p class="text-danger">El nombre de usuario ingresado no se encuentra disponible.</p></span>
                                 </div>
                                 <div class="form-group">
-                                    <label style="margin-left: 5px;"> Contrase&ntilde;a: </label>
-                                    <input style="margin-left: auto; margin-right: auto; width: 95%;" type="password" class="form-control" name="password" ng-model="newuser.password" required="" oninvalid="this.setCustomValidity('Ingrese una contrase&ntilde;a')" oninput="this.setCustomValidity('')" ng-min="8" ng-max="30">
+                                    <label style="margin-left: 5px; "> Contrase&ntilde;a: </label>
+                                    <input style="margin-left: auto; margin-right: auto; width: 95%; " type="password" class="form-control " name="password " ng-model="newuser.password " required=" " oninvalid="this.setCustomValidity( 'Ingrese una contrase&ntilde;a') " oninput="this.setCustomValidity( '') " ng-min="8 " ng-max="30 ">
                                 </div>
                                 <div class="form-group">
-                                    <label style="margin-left: 5px;"> Correo: </label>
-                                    <input style="margin-left: auto; margin-right: auto; width: 95%;" type="text" class="form-control" name="email" ng-model="newuser.email" oninput="this.setCustomValidity('')" ng-min="8" ng-max="30">
+                                    <label style="margin-left: 5px; "> Correo: </label>
+                                    <input style="margin-left: auto; margin-right: auto; width: 95%; " type="text" class="form-control" name="email" ng-model="newuser.email" oninput="this.setCustomValidity( '') " ng-min="8 " ng-max="30 ">
                                 </div>
                                 <div class="form-group">
-                                    <label style="margin-left: 5px;"> Nombres: </label>
-                                    <input style="margin-left: auto; margin-right: auto; width: 95%;" type="text" class="form-control" name="firstName" ng-model="newuser.firstName" required="" oninvalid="this.setCustomValidity('Ingrese un nombre')" oninput="this.setCustomValidity('')" ng-min="2" ng-max="30">
+                                    <label style="margin-left: 5px; "> Nombres: </label>
+                                    <input style="margin-left: auto; margin-right: auto; width: 95%; " type="text " class="form-control " name="firstName " ng-model="newuser.firstName " required=" " oninvalid="this.setCustomValidity( 'Ingrese un nombre') " oninput="this.setCustomValidity( '') " ng-min="2 " ng-max="30 ">
                                 </div>
                                 <div class="form-group">
-                                    <label style="margin-left: 5px;"> Apellido: </label>
-                                    <input style="margin-left: auto; margin-right: auto; width: 95%;" type="text" class="form-control" name="lastName" ng-model="newuser.lastName" required="" oninvalid="this.setCustomValidity('Ingrese un apellido')" oninput="this.setCustomValidity('')" ng-min="2" ng-max="30">
+                                    <label style="margin-left: 5px; "> Apellido: </label>
+                                    <input style="margin-left: auto; margin-right: auto; width: 95%; " type="text " class="form-control " name="lastName " ng-model="newuser.lastName " required=" " oninvalid="this.setCustomValidity( 'Ingrese un apellido') " oninput="this.setCustomValidity( '') " ng-min="2 " ng-max="30 ">
                                 </div>
                                 <div>
-                                    <span class="help-block" ng-show="badPassword">La contrase&ntilde;a ingresada no es valida.</span>
+                                    <span class="help-block " ng-show="badPassword ">La contrase&ntilde;a ingresada no es valida.</span>
                                 </div>
-                                <!--<div class="form-group">
-                                    <label style="margin-left: 5px;"> Administrador: </label>
-                                    <input style="margin-left: auto; margin-right: auto; width: 95%;" type="checkbox" class="form-control" name="password" ng-model="newuser.admin" ng-click="newuser = {}">
+                                <!--<div class="form-group ">
+                                    <label style="margin-left: 5px; "> Administrador: </label>
+                                    <input style="margin-left: auto; margin-right: auto; width: 95%; " type="checkbox " class="form-control " name="password " ng-model="newuser.admin " ng-click="newuser={ } ">
                                 </div> -->
-                                <div class="modal-footer">
-                                    <button type="submit" class="btn btn-primary">Guardar</button>
-                                    <button type="button" class="btn btn-default" data-dismiss="modal">Cancelar</button>
+                                <div class="modal-footer ">
+                                    <button type="submit " class="btn btn-primary ">Guardar</button>
+                                    <button type="button " class="btn btn-default " data-dismiss="modal ">Cancelar</button>
                                 </div>
                             </form>
                         </div>
@@ -262,13 +290,13 @@
                     <div class="modal-content">
                         <div class="modal-header">
                             <button type="button" class="close" data-dismiss="modal">&times;</button>
-                            <h4 class="modal-title" style="text-align: center;">Estado de los contenedores</h4>
+                            <h4 class="modal-title" style="text-align: center; ">Estado de los contenedores</h4>
                         </div>
-                        <div style="overflow:scroll; margin-top: 10px;">
-                            <!--class="form-group" -->
+                        <div style="overflow:scroll; margin-top: 10px; ">
+                            <!--class="form-group " -->
                             <div ng-repeat="container in containers">
                                 <!-- inside col 1 -->
-                                <div class="clearfix wow" ng-if="$index % 2 == 0"></div>
+                                <div class="clearfix wow" ng-if="$index % 2==0"></div>
                                 <div class="col-sm-6">
                                     <div ng-if="user.admin" data-toggle="modal" data-target="#editContainer" ng-click="prepareToDelete(container)" class="c100 p{{container.percentageFull}} small" style="margin-left: 10px;">
                                         <span>{{container.percentageFull}}%</span>
@@ -277,7 +305,7 @@
                                             <div class="fill"></div>
                                         </div>
                                     </div>
-                                    <div ng-if="!user.admin" class="c100 p{{container.percentageFull}} small" style="margin-left: 10px;">
+                                    <div ng-if="!user.admin" class="c100 p{{container.percentageFull}} small" style="margin-left: 10px; ">
                                         <span>{{container.percentageFull}}%</span>
                                         <div class="slice">
                                             <div class="bar"></div>
@@ -299,18 +327,18 @@
                 </div>
             </div>
             <div id="editContainer" class="modal fade" role="dialog">
-                <div class="modal-dialog">
-                    <div class="modal-content">
-                        <div class="modal-header">
-                            <button type="button" class="close" data-dismiss="modal">&times;</button>
-                            <h4 class="modal-title" style="text-align: center;">¿Eliminar Contenedor?</h4>
+                <div class="modal-dialog ">
+                    <div class="modal-content ">
+                        <div class="modal-header ">
+                            <button type="button " class="close " data-dismiss="modal ">&times;</button>
+                            <h4 class="modal-title " style="text-align: center; ">¿Eliminar Contenedor?</h4>
                         </div>
-                        <div class="modal-body">
+                        <div class="modal-body ">
                             <p>Presiona confirmar si estas seguro que deseas eliminar el contenedor {{deleteContainer.containerId}}</p>
                         </div>
-                        <div class="modal-footer">
-                            <button type="submit" class="btn btn-primary" ng-click="delete()">Confirmar</button>
-                            <button type="button" class="btn btn-default" data-dismiss="modal">Cancelar</button>
+                        <div class="modal-footer ">
+                            <button type="submit " class="btn btn-primary " ng-click="delete() ">Confirmar</button>
+                            <button type="button " class="btn btn-default " data-dismiss="modal ">Cancelar</button>
                         </div>
                     </div>
                 </div>
@@ -318,16 +346,15 @@
         </div>
         </div>
     </section>
-   
-    <footer class="footer">
-        <div class="container">
-            <div class="main-nav">
-                <a href="#"><img src="img/LogoNuevo.png" style="width: 30%; margin-bottom: 15px;" alt=""></a>
+    <footer class="footer ">
+        <div class="container ">
+            <div class="main-nav ">
+                <a href="# "><img src="img/LogoNuevo.png " style="width: 30%; margin-bottom: 15px; " alt=" "></a>
             </div>
-            <span class="copyright">UTN Facultad Regional Resistencia. Integrantes: Britez Adaime, Arturo; Bode, Augusto; Silva, Omar; Simon, Francisco; Schumacher, Santiago</span>
+            <span class="copyright ">UTN Facultad Regional Resistencia. Integrantes: Britez Adaime, Arturo; Bode, Augusto; Silva, Omar; Simon, Francisco; Schumacher, Santiago</span>
         </div>
     </footer>
-    <script type="text/javascript">
+    <script type="text/javascript ">
     $(document).ready(function(e) {
         $('#test').scrollToFixed();
         $('.res-nav_click').click(function() {
@@ -345,61 +372,5 @@
     });
     wow.init();
     </script>
-    <script type="text/javascript">
-    $(window).load(function() {
-
-        $('.main-nav li a').bind('click', function(event) {
-            var $anchor = $(this);
-
-            $('html, body').stop().animate({
-                scrollTop: $($anchor.attr('href')).offset().top - 102
-            }, 1500, 'easeInOutExpo');
-
-            event.preventDefault();
-        });
-    })
-    </script>
-    <script type="text/javascript">
-    $(window).load(function() {
-
-        var $container = $('.portfolioContainer'),
-            $body = $('body'),
-            colW = 375,
-            columns = null;
-
-        $container.isotope({
-            resizable: true,
-            masonry: {
-                columnWidth: colW
-            }
-        });
-
-        $(window).smartresize(function() {
-            // check if columns has changed
-            var currentColumns = Math.floor(($body.width() - 30) / colW);
-            if (currentColumns !== columns) {
-                // set new column count
-                columns = currentColumns;
-                // apply width to container manually, then trigger relayout
-                $container.width(columns * colW)
-                    .isotope('reLayout');
-            }
-
-        }).smartresize(); // trigger resize to set container width
-        $('.portfolioFilter a').click(function() {
-            $('.portfolioFilter .current').removeClass('current');
-            $(this).addClass('current');
-
-            var selector = $(this).attr('data-filter');
-            $container.isotope({
-
-                filter: selector,
-            });
-            return false;
-        });
-
-    });
-    </script>
 </body>
-
 </html>
