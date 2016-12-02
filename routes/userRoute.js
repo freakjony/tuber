@@ -1,4 +1,5 @@
 var express = require('express');
+var jwt = require("jsonwebtoken");
 var User = require('../models/user');
 var router = express.Router();
 
@@ -10,26 +11,37 @@ router.use(function timeLog(req, res, next) {
 
 // ======= Create endpoint /api/user for POSTS ============= //
 router.post('/user', function(req, res) {
-    // Create a new instance of a user
-    var user1 = new User();
-    // Set the User properties that came from the POST data
-    user1.username = req.body.username;
-    user1.password = req.body.password;
-    user1.admin = req.body.admin;
-    user1.firstName = req.body.firstName;
-    user1.lastName = req.body.lastName;
-    user1.email = req.body.email;
-
-    //Save the user in DB and check for errors
-    user1.save(function(err) {
-        if (err) {
-            console.log('400', err);
-            res.status(400).send(err);
-            return;
+    if (err) {
+        res.json({
+            type: false,
+            data: "Error occured: " + err
+        });
+    } else {
+        if (user) {
+            res.json({
+                type: false,
+                data: "User already exists!"
+            });
+        } else {
+            var userModel = new User();
+            userModel.username = req.body.username;
+            userModel.password = req.body.password;
+            userModel.admin = req.body.admin;
+            userModel.firstName = req.body.firstName;
+            userModel.lastName = req.body.lastName;
+            userModel.email = req.body.email;
+            userModel.save(function(err, user) {
+                user.token = jwt.sign(user, process.env.JWT_SECRET);
+                user.save(function(err, user1) {
+                    res.json({
+                        type: true,
+                        data: user1,
+                        token: user1.token
+                    });
+                });
+            })
         }
-        user1.password = '';
-        res.json({ message: 'User information added to the database!', user: user1 });
-    });
+    }
 });
 
 router.get('/users', function(req, res) {
@@ -44,28 +56,75 @@ router.post('/login', function(req, res) {
     var badLoginMessage = 'Usuario y/o Contraseña erroneos';
     User.findOne({ username: name }, function(err, user) {
         if (err) {
-            return res.status(401).send(err);
+            console.log(name,"Error occured: " + err);
+            res.json({
+                type: false,
+                data: "Error occured: " + err
+            });
+        } else {
+            if (user) {
+                console.log('usuario', user);
+                user.comparePassword(pass, function(err, isMatch) {
+                    if (err) {
+                        res.json({
+                            type: false,
+                            data: badLoginMessage
+                        });
+                        return;
+                    }
+                    console.log('isMatch with password', pass, isMatch);
+                    if (!isMatch) {
+                        res.json({
+                            type: false,
+                            data: badLoginMessage
+                        });
+                    } else {
+                        res.json({
+                            type: true,
+                            data: user,
+                            token: user.token
+                        });
+                    }
+
+                });
+            } else {
+                res.json({
+                    type: false,
+                    data: badLoginMessage
+                });
+            }
         }
-        console.log('usuario', user);
-        if(user){
-        user.comparePassword(pass, function(err, isMatch) {
-            if (err) {
-                return res.status(401).send(badLoginMessage);
-            }
-            console.log('isMatch with password', pass, isMatch);
-            if(!isMatch){
-                res.status(401).send(badLoginMessage);
-            }else{
-                user.password = '';
-                res.send(user);
-            }
-            
-        });
-    } else {
-        return res.status(401).send(badLoginMessage);
-    }
     });
 });
+
+router.get('/me', ensureAuthorized, function(req, res) {
+    User.findOne({ token: req.token }, function(err, user) {
+        if (err) {
+            res.json({
+                type: false,
+                data: "Error occured: " + err
+            });
+        } else {
+            res.json({
+                type: true,
+                data: user
+            });
+        }
+    });
+});
+
+function ensureAuthorized(req, res, next) {
+    var bearerToken;
+    var bearerHeader = req.headers["authorization"];
+    if (typeof bearerHeader !== 'undefined') {
+        var bearer = bearerHeader.split(" ");
+        bearerToken = bearer[1];
+        req.token = bearerToken;
+        next();
+    } else {
+        res.send(403);
+    }
+}
 
 // ========= DELETE User BY Username ==================== //
 router.delete('/user/delete', function(req, res) {

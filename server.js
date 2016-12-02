@@ -19,7 +19,7 @@ db.once('open', function callback() {
 var allowCrossDomain = function(req, res, next) {
     res.header('Access-Control-Allow-Origin', '*');
     res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE');
-    res.header('Access-Control-Allow-Headers', 'Content-Type');
+    res.header('Access-Control-Allow-Headers', 'Content-Type, X-Requested-With,content-type, Authorization');
     next();
 }
 
@@ -41,6 +41,9 @@ var userRoute = require('./routes/userRoute');
 app.use('/api', containerRoute);
 app.use('/api', userRoute);
 
+process.on('uncaughtException', function(err) {
+    console.log(err);
+})
 // listen (start app with node server.js) ======================================
 // process.env.PORT when deployed in Heroku, port 5000 for local testing.
 app.listen(process.env.PORT || 5000)
