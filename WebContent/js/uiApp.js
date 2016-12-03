@@ -3,7 +3,7 @@
         "tuberApp", [
             '$scope', '$http', '$timeout',
             function($scope, $http, $timeout) {
-                $scope.user = { "name": "ShummyLyn", "admin": true };
+               // $scope.user = { "name": "ShummyLyn", "admin": true };
                 $scope.newContainer = { "containerId": null, "percentageFull": 0, "lng": null, "lat": null, "address": null };
 
                 $scope.addContainer = function(jsonContainer) {
@@ -59,6 +59,7 @@
                         });
                 };
 
+                $scope.getContainers();
                 $scope.callFnOnInterval($scope.getContainers, 20000);
 
                 $scope.prepareToDelete = function(container) {
