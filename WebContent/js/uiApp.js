@@ -147,15 +147,18 @@
                         }).then(
                             function(response) {
                                 console.log('Logueado exitosamente ', response);
-                                $scope.badLogin = {};
-                                $scope.user = response.data;
-                                $('#login').modal('hide');
-                                $('#logueo').modal('hide');
-                                noty({
-                                    text: "Logueado exitosamente " + $scope.user.username,
-                                    type: 'success',
-                                    timeout: 5000
-                                });
+                                if (response.data.type) {
+                                    $scope.user = response.data.data;
+                                    $('#login').modal('hide');
+                                    $('#logueo').modal('hide');
+                                    noty({
+                                        text: "Logueado exitosamente " + $scope.user.username,
+                                        type: 'success',
+                                        timeout: 5000
+                                    });
+                                } else {
+                                    $scope.badLogin = response.data.data;
+                                }
                             },
                             function(response) {
                                 console.log('Error intentando iniciar sesión', response);

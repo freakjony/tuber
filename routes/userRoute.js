@@ -11,37 +11,39 @@ router.use(function timeLog(req, res, next) {
 
 // ======= Create endpoint /api/user for POSTS ============= //
 router.post('/user', function(req, res) {
-    if (err) {
-        res.json({
-            type: false,
-            data: "Error occured: " + err
-        });
-    } else {
-        if (user) {
+    User.findOne({ username: req.body.username, password: req.body.password }, function(err, user) {
+        if (err) {
             res.json({
                 type: false,
-                data: "User already exists!"
+                data: "Error occured: " + err
             });
         } else {
-            var userModel = new User();
-            userModel.username = req.body.username;
-            userModel.password = req.body.password;
-            userModel.admin = req.body.admin;
-            userModel.firstName = req.body.firstName;
-            userModel.lastName = req.body.lastName;
-            userModel.email = req.body.email;
-            userModel.save(function(err, user) {
-                user.token = jwt.sign(user, process.env.JWT_SECRET);
-                user.save(function(err, user1) {
-                    res.json({
-                        type: true,
-                        data: user1,
-                        token: user1.token
-                    });
+            if (user) {
+                res.json({
+                    type: false,
+                    data: "User already exists!"
                 });
-            })
+            } else {
+                var userModel = new User();
+                userModel.username = req.body.username;
+                userModel.password = req.body.password;
+                userModel.admin = req.body.admin;
+                userModel.firstName = req.body.firstName;
+                userModel.lastName = req.body.lastName;
+                userModel.email = req.body.email;
+                userModel.save(function(err, user) {
+                    user.token = jwt.sign(user, process.env.JWT_SECRET);
+                    user.save(function(err, user1) {
+                        res.json({
+                            type: true,
+                            data: user1,
+                            token: user1.token
+                        });
+                    });
+                })
+            }
         }
-    }
+    })
 });
 
 router.get('/users', function(req, res) {
@@ -56,7 +58,7 @@ router.post('/login', function(req, res) {
     var badLoginMessage = 'Usuario y/o Contraseña erroneos';
     User.findOne({ username: name }, function(err, user) {
         if (err) {
-            console.log(name,"Error occured: " + err);
+            console.log(name, "Error occured: " + err);
             res.json({
                 type: false,
                 data: "Error occured: " + err
