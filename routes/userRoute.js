@@ -52,6 +52,45 @@ router.get('/users', function(req, res) {
     });
 });
 
+router.get('/user', function(req, res) {
+    var id = req.query.username;
+
+    User.findOne({ username: id }, function(err, user) {
+        if (err) {
+            return next(err);
+        }
+        res.send(user);
+    });
+});
+
+router.put('/user', function(req, res) {    
+    var id = req.body.username;
+    var firstName = req.body.firstName;
+    var lastName = req.body.lastName;
+    var email = req.body.email;
+    var admin = req.body.admin;
+
+    console.log(id + firstName + lastName + email + admin);
+    User.findOne({ username: id }, function(err, user) {
+        if (err) {
+            return next(err);
+        }
+
+        if (firstName !== undefined && firstName.length > 0)  user.firstName = firstName;
+        if (lastName !== undefined && lastName.length > 0 ) user.lastName = lastName;
+        if (email !== undefined && email.length > 0 ) user.email = email;
+        if (admin !== undefined) user.admin = admin;
+        console.log(admin);
+        console.log(user.admin);
+        user.save(function(err, updatedUser) {
+            if (err) {
+                return next(err);
+            }
+            res.send(updatedUser);
+        });
+    });
+});
+
 router.post('/login', function(req, res) {
     var name = req.body.username;
     var pass = req.body.password;

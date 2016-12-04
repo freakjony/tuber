@@ -65,16 +65,16 @@
         <!--main-nav-start-->
         <div class="container">
             <ul class="main-nav">
-                <li ng-if="!user"><a href="#logueo" data-toggle="modal" data-target="#logueo">Identificarse</a></li>
-                <li ng-if="user"><a href="#logueo" data-toggle="modal" data-target="#logueo">Mi perfil</a></li>
+                <li ng-show="!user"><a href="#logueo" data-toggle="modal" data-target="#logueo">Identificarse</a></li>
+                <li ng-show="user"><a href="#miPerfil" data-toggle="modal" data-target="#miPerfil">Mi perfil</a></li>
                 <li><a href="#service">Como funciona</a></li>
                 <li class="small-logo">
                     <a href="#header"><img src="img/LogoNuevoSmall.png" alt=""></a>
                 </li>
                 <li><a href="#team">Recorrido</a></li>
-                <li ng-if="!user.admin">
+                <li ng-show="!user.admin">
                     <a title="Función habilitada para Administradores" disabled ">Estadísticas</a></li>
-                <li ng-if="user.admin"><a href="#estadisticas" data-toggle="modal" data-target="#estadisticas" ng-click="estadistica()">Estadísticas</a></li>
+                <li ng-show="user.admin"><a href="#estadisticas" data-toggle="modal" data-target="#estadisticas" ng-click="estadistica()">Estadísticas</a></li>
             </ul>
             <a class="res-nav_click" href="#"><i class="fa-bars"></i></a>
         </div>
@@ -174,6 +174,53 @@
                     </div>
                 </div>
             </div>
+
+            <div id="miPerfil" class="modal fade" role="dialog">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <ul class="main-nav">
+                            <li><a href="#login" data-toggle="modal" data-target="#UpdateUser" ng-click="getUserByUsername(user)"> Mis Datos</a></li>
+                            <li><a href="#signup" data-toggle="modal" data-target="#signup"> Cerrar Sesi&oacute;n</a></li>
+                            <li ng-show="user.admin"><a href="/usersView.html"> Administrar Usuarios</a></li>
+
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <div class="modal" id="UpdateUser" role="dialog">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <button type="button" class="close" data-dismiss="modal">&times;</button>
+                            <h3 class="text-info">Mis datos</h3>
+                        </div>
+                        <div class="modal-body">
+                            <form class="form-horizontal">
+                                <div class="form-group">
+                                    <label class="text-info"> Usuario: {{UpdateUserUsername}} </label>
+                                </div>
+                                <div class="form-group">
+                                    <label class="text-info"> Nombre: {{UpdateUserFirstName}} </label>
+                                </div>
+                                <div class="form-group">
+                                    <label class="text-info"> Apellido: {{UpdateUserLastName}} </label>
+                                </div>
+                                <div class="form-group">
+                                    <label class="text-info"> Email: {{UpdateUserEmail}} </label>
+                                </div>
+                                <div class="form-group">
+                                    <label class="text-info"> Admin: {{UpdateUserAdmin}} </label>
+                                </div>
+                            </form>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-default" data-dismiss="modal">Cerrar</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
             <div id="insertContainer" class="modal fade" role="dialog">
                 <div class="modal-dialog">
                     <div class="modal-content">

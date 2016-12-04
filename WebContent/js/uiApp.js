@@ -3,7 +3,7 @@
         "tuberApp", [
             '$scope', '$http', '$timeout',
             function($scope, $http, $timeout) {
-                $scope.user = { "name": "ShummyLyn", "admin": true };
+                // $scope.user = { "name": "ShummyLyn", "admin": true };
                 $scope.newContainer = { "containerId": null, "percentageFull": 0, "lng": null, "lat": null, "address": null };
 
                 $scope.addContainer = function(jsonContainer) {
@@ -59,6 +59,7 @@
                         });
                 };
 
+                $scope.getContainers();
                 $scope.callFnOnInterval($scope.getContainers, 20000);
 
                 $scope.prepareToDelete = function(container) {
@@ -216,5 +217,125 @@
                     };
                 }
 
+
+
+
+
+                // USUARIOS // 
+                $scope.loadUsers = function() {
+                    $http({
+                        method: 'GET',
+                        url: '/api/users',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                    }).then(
+                        function(response) {
+                            $scope.Users = response.data;
+                        },
+                        function(response) {
+                            $scope.UsersError = 'Request failed' + " error code: " + response.data + response.data.status;
+                        });
+                }
+                $scope.loadUsers();
+
+                $scope.getUserByUsername = function(username) {
+                    $http({
+                        method: 'GET',
+                        url: '/api/user',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        data: username
+                    }).then(
+                        function(response) {
+                            $scope.UpdateUserAdmin = response.config.data.admin;
+                            $scope.UpdateUserEmail = response.config.data.email;
+                            $scope.UpdateUserLastName = response.config.data.lastName;
+                            $scope.UpdateUserFirstName = response.config.data.firstName;
+                            $scope.UpdateUserUsername = response.config.data.username;
+                        },
+                        function(response) {
+                            console.log('Error buscando usuario ' + username, response);
+                            $scope.badLogin = response.data;
+                        });
+                }
+
+                $scope.deleteUser = function(username) {
+                    noty({
+                        text: 'Se eliminará el usuario ' + username + ' permanentemente, confirme para continuar',
+                        theme: 'defaultTheme',
+                        layout: 'center',
+                        type: 'confirm',
+                        buttons: [{
+                            addClass: 'button',
+                            text: 'Continuar',
+                            onClick: function($noty) {
+                                $noty.close();
+
+                                $http({
+                                    method: 'DELETE',
+                                    url: '/api/user/delete',
+                                    headers: {
+                                        'Content-Type': 'application/json'
+                                    },
+                                    data: { "username": username }
+                                }).then(
+                                    function(response) {
+                                        $scope.loadUsers();
+                                        noty({
+                                            text: "Usuario " + username + " eliminado correctamente.",
+                                            type: 'success',
+                                            timeout: 5000
+                                        });
+                                    },
+                                    function(response) {
+                                        $scope.addressError = 'Request failed' + " error code: " + response.data + response.data.status;
+                                    });
+
+                            }
+                        }, {
+                            addClass: 'button',
+                            text: 'Cancel',
+                            onClick: function($noty) {
+                                $noty.close();
+                            }
+                        }]
+                    });
+                }
+
+                $scope.UpdateAdmin = false;
+                $scope.updateUser = function() {                      
+                    var User = {
+                        username: $scope.UpdateUserUsername,
+                        firstName: $scope.UpdateFirstName,
+                        lastName: $scope.UpdateLastName,
+                        email: $scope.UpdateEmail,
+                        admin: $scope.UpdateAdmin
+                    };
+                    $http({
+                        method: 'PUT',
+                        url: '/api/user',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        data: User
+                    }).then(
+                        function(response) {
+                            $scope.loadUsers();
+                            noty({
+                                text: "Usuario  " + $scope.UpdateUserUsername + " actualizado",
+                                type: 'success',
+                                timeout: 5000
+                            });
+                        },
+                        function(response) {
+                            noty({
+                                text: "Error actualizando usuario: " + JSON.stringify(response),
+                                type: 'error',
+                                timeout: 5000
+                            });
+                        });
+                }
             }
         ]);
