@@ -1,0 +1,163 @@
+<!doctype html>
+<html ng-app="ngMap">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, maximum-scale=1">
+    <title>Proyecto Tuber UTN</title>
+    <link rel="icon" href="/favicon.ico">
+    <link href='//fonts.googleapis.com/css?family=Montserrat:400,700' rel='stylesheet' type='text/css'>
+    <link href='//fonts.googleapis.com/css?family=Open+Sans:400,300,800italic,700italic,600italic,400italic,300italic,800,700,600' rel='stylesheet' type='text/css'>
+    <link href="css/bootstrap.css" rel="stylesheet" type="text/css">
+    <link href="css/style.css" rel="stylesheet" type="text/css">
+    <link href="css/font-awesome.css" rel="stylesheet" type="text/css">
+    <link href="css/responsive.css" rel="stylesheet" type="text/css">
+    <link href="css/animate.css" rel="stylesheet" type="text/css">
+    <link rel="stylesheet" href="css/circle.css" type="text/css">
+    <!--[if IE]><style type="text/css">.pie {behavior:url(PIE.htc);}</style><![endif]-->
+    <script type="text/javascript" src="js/jquery.1.8.3.min.js"></script>
+    <script type="text/javascript" src="js/bootstrap.js"></script>
+    <script type="text/javascript" src="js/jquery-scrolltofixed.js"></script>
+    <script type="text/javascript" src="js/jquery.easing.1.3.js"></script>
+    <script type="text/javascript" src="js/jquery.isotope.js"></script>
+    <script type="text/javascript" src="js/wow.js"></script>
+    <script type="text/javascript" src="js/classie.js"></script>
+    <script type="text/javascript" src="js/mapservices.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery-noty/2.3.8/packaged/jquery.noty.packaged.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery-noty/2.3.8/layouts/topCenter.js"></script>
+    <script src="https://maps.google.com/maps/api/js?key=AIzaSyAgjlXMQ_h6MIUTgEeheA0nfPlyBjr_6hY"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.5.8/angular.min.js"></script>
+    <script src="/node_modules/ngmap/build/scripts/ng-map.min.js"></script>
+    <script type="text/javascript" src="js/uiApp.js"></script>
+    <!-- FusionCharts library-->
+    <script type="text/javascript" src="fusionCharts/js/fusioncharts.js"></script>
+    <script type="text/javascript" src="fusionCharts/js/fusioncharts.charts.js"></script>
+    <!-- Angular plugin -->
+    <script type="text/javascript" src="fusionCharts/angular-fusioncharts.min.js"></script>
+    <!--[if lt IE 9]>
+    <script src="js/respond-1.1.0.min.js"></script>
+    <script src="js/html5shiv.js"></script>
+    <script src="js/html5element.js"></script>
+<![endif]-->
+</head>
+<style>
+input,
+label {
+    margin-left: 20px;
+}
+
+input {
+    width: 90% !important;
+}
+</style>
+
+<body ng-controller="tuberApp">
+    <nav class="navbar navbar-default navbar-static-top">
+        <div class="container">
+            <ul class="nav navbar-nav">
+                <li class="active">
+                    <a href="/index.html">Volver</a>
+                </li>
+            </ul>
+        </div>
+    </nav>
+    <div class="container">
+        <div class="panel panel-primary">
+            <div class="panel-heading">
+                Administración de Usuarios
+            </div>
+            <table class="table table-bordered">
+                <thead style="background-color:lightgreen;">
+                    <tr>
+                        <th> Usuario</th>
+                        <th> Nombre</th>
+                        <th>Apellido </th>
+                        <th>Email</th>
+                        <th>Admin</th>
+                        <th> Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr ng-repeat="usr in Users">
+                        <td> {{usr.username}}</td>
+                        <td> {{usr.firstName}} </td>
+                        <td>{{usr.lastName}}</td>
+                        <td>{{usr.email}}</td>
+                        <td>{{usr.admin}}</td>
+                        <td style="width:200px;">
+                            <a href="#" class="btn btn-info" data-toggle="modal" data-target="#UpdateUser" ng-click="getUserByUsername(usr)">Actualizar</a>
+                            <a href="#" class="btn btn-danger" id="btnDelete" data-toggle="modal" data-target="#deleteDialog" ng-click="getUserByUsername(usr)">Eliminar</a>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+            <div class="panel-footer">
+                Proyecto Tuber - Administración de Usuarios
+            </div>
+            <!-- UPDATE USUARIOS -->
+            <div class="modal" id="UpdateUser" role="dialog">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <button type="button" class="close" data-dismiss="modal">&times;</button>
+                            <h3 class="text-info">Actualizar datos Usuario</h3>
+                        </div>
+                        <div class="modal-body">
+                            <!-- FORMULARIO UPDATE USUARIO -->
+                            <form class="form-horizontal" name="UpdateUserForm">
+                                <div class="form-group">
+                                    <label class="text-info"> Usuario: {{UpdateUserUsername}} </label>
+                                    <!-- <input class="form-control" readonly="readonly" name="username" ng-model="UpdateUsername" type="hidden" placeholder= required />    -->
+                                </div>
+                                <div class="form-group">
+                                    <label class="text-info"> Nombre</label>
+                                    <input class="form-control" name="EmpName" ng-model="UpdateFirstName" type="text" placeholder="Nombre" required />
+                                </div>
+                                <div class="form-group">
+                                    <label class="text-info"> Apellido</label>
+                                    <input class="form-control" name="Salary" ng-model="UpdateLastName" type="text" placeholder="Apellido" required />
+                                </div>
+                                <div class="form-group">
+                                    <label class="text-info"> Email</label>
+                                    <input class="form-control" name="DeptName" ng-model="UpdateEmail" type="text" placeholder="Email" required />
+                                </div>
+                                <div class="form-group">
+                                    <label class="text-info"> Admin</label>
+                                    <input class="form-control" name="Designation" ng-model="UpdateAdmin" type="checkbox" placeholder="Admin" required />
+                                </div>
+                            </form>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-success" id="btnUpdate" data-dismiss="modal" ng-click="updateUser()">Actualizar</button>
+                            <button type="button" class="btn btn-default" data-dismiss="modal">Cerrar</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- Eliminar Usuario -->
+            <div class="modal" role="dialog" id="deleteDialog">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <button type="button" class="close" data-dismiss="modal">&times;</button>
+                            <h3 class="text-info">Desea eliminar el usuario?</h3>
+                        </div>
+                        <div class="modal-body">
+                            <div>
+                                <p>Usuario:{{UpdateUserUsername}}</p>
+                                <p>Nombre:{{UpdateEmpName}}</p>
+                                <p>Apellido:{{UpdateSalary}}</p>
+                                <p>Email:{{UpdateDeptName}}</p>
+                                <p>Admin:{{UpdateDesignation}}</p>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-danger" data-dismiss="modal" ng-click="deleteUser(UpdateUserUsername)">Eliminar Usuario</button>
+                            <button type="button" class="btn btn-default" data-dismiss="modal">Cerrar</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
