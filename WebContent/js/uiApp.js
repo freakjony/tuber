@@ -300,7 +300,7 @@ app.controller(
             $scope.token = $localStorage.token;
             $scope.admin = $localStorage.admin;
             $scope.me = function() {
-                if ($scope.token) {
+                if ($scope.token && $scope.admin) {
                     Services.me($scope.token,
                         function(res) {
                             $scope.user = res;
