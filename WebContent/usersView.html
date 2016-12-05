@@ -71,18 +71,18 @@ input {
             <table class="table table-bordered">
                 <thead style="background-color:lightgreen;">
                     <tr>
-                        <th> Usuario</th>
-                        <th> Nombre</th>
+                        <th>Usuario</th>
+                        <th>Nombre</th>
                         <th>Apellido </th>
                         <th>Email</th>
                         <th>Admin</th>
-                        <th> Acciones</th>
+                        <th>Acciones</th>
                     </tr>
                 </thead>
                 <tbody>
-                    <tr ng-repeat="usr in Users">
-                        <td> {{usr.username}}</td>
-                        <td> {{usr.firstName}} </td>
+                    <tr ng-repeat="usr in Users | orderBy:'username'">
+                        <td>{{usr.username}}</td>
+                        <td>{{usr.firstName}} </td>
                         <td>{{usr.lastName}}</td>
                         <td>{{usr.email}}</td>
                         <td><input id="admin" disabled="true" type="checkbox" ng-checked="{{usr.admin}}" aria-label="activo"></td>

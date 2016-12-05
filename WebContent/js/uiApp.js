@@ -22,8 +22,8 @@ app.config(['$httpProvider', function($httpProvider) {
 }]);
 app.controller(
     "tuberApp", [
-        '$scope', '$http', '$timeout', '$localStorage', 'Services', '$location',
-        function($scope, $http, $timeout, $localStorage, Services, $location) {
+        '$scope', '$http', '$timeout', '$localStorage', 'Services',
+        function($scope, $http, $timeout, $localStorage, Services) {
             // $scope.user = { "name": "ShummyLyn", "admin": true };
             $scope.newContainer = { "containerId": null, "percentageFull": 0, "lng": null, "lat": null, "address": null };
 
@@ -295,8 +295,8 @@ app.controller(
 
 app.controller(
     "userViewCtrl", [
-        '$scope', '$http', '$timeout', '$localStorage', 'Services', '$location',
-        function($scope, $http, $timeout, $localStorage, Services, $location) {
+        '$scope', '$http', '$timeout', '$localStorage', 'Services',
+        function($scope, $http, $timeout, $localStorage, Services) {
             $scope.token = $localStorage.token;
             $scope.admin = $localStorage.admin;
             $scope.me = function() {
