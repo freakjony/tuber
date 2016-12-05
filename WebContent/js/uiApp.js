@@ -1,8 +1,29 @@
-    var app = angular.module("ngMap", ["ng-fusioncharts"]);
+    var app = angular.module("ngMap", ["ng-fusioncharts", "ngStorage"]);
+    app.config(['$httpProvider', function($httpProvider) {
+
+        $httpProvider.interceptors.push(['$q', '$localStorage', function($q, $localStorage) {
+            return {
+                'request': function(config) {
+                    config.headers = config.headers || {};
+                    if ($localStorage.token) {
+                        config.headers.Authorization = 'Bearer ' + $localStorage.token;
+                    }
+                    return config;
+                },
+                'responseError': function(response) {
+                    if (response.status === 401 || response.status === 403) {
+
+                    }
+                    return $q.reject(response);
+                }
+            };
+        }]);
+
+    }]);
     app.controller(
         "tuberApp", [
-            '$scope', '$http', '$timeout',
-            function($scope, $http, $timeout) {
+            '$scope', '$http', '$timeout', '$localStorage', 'Services', '$location',
+            function($scope, $http, $timeout, $localStorage, Services, $location) {
                 // $scope.user = { "name": "ShummyLyn", "admin": true };
                 $scope.newContainer = { "containerId": null, "percentageFull": 0, "lng": null, "lat": null, "address": null };
 
@@ -60,7 +81,7 @@
                 };
 
                 $scope.getContainers();
-                $scope.callFnOnInterval($scope.getContainers, 20000);
+                //$scope.callFnOnInterval($scope.getContainers, 20000);
 
                 $scope.prepareToDelete = function(container) {
                     $scope.deleteContainer = container;
@@ -136,20 +157,18 @@
                     });
                 };
 
-                $scope.login = function() {
-                    if ($scope.user.username && $scope.user.password) {
-                        $http({
-                            method: 'POST',
-                            url: '/api/login',
-                            headers: {
-                                'Content-Type': 'application/json'
-                            },
-                            data: $scope.user
-                        }).then(
+                $scope.login = function(username, password) {
+                    if (username && password) {
+                        var user = { "username": username, "password": password };
+                        Services.login(user,
                             function(response) {
                                 console.log('Logueado exitosamente ', response);
-                                if (response.data.type) {
-                                    $scope.user = response.data.data;
+                                if (response.type) {
+                                    $localStorage.token = response.data.token;
+                                    $localStorage.admin = response.data.admin;
+                                    $scope.user = response.data;
+                                    $scope.token = response.data.token;
+                                    $scope.admin = response.data.admin;
                                     $('#login').modal('hide');
                                     $('#logueo').modal('hide');
                                     noty({
@@ -158,7 +177,7 @@
                                         timeout: 5000
                                     });
                                 } else {
-                                    $scope.badLogin = response.data.data;
+                                    $scope.badLogin = response.data;
                                 }
                             },
                             function(response) {
@@ -171,23 +190,19 @@
                 // SIGN UP METHOD
                 $scope.signup = function() {
                     if ($scope.newuser.username && $scope.newuser.password && $scope.newuser.firstName && $scope.newuser.lastName) {
-                        $http({
-                            method: 'POST',
-                            url: '/api/user',
-                            headers: {
-                                'Content-Type': 'application/json'
-                            },
-                            data: $scope.newuser
-                        }).then(
+                        Services.signup($scope.newuser,
                             function(response) {
-                                $scope.newuser = response.data.user;
-                                $scope.duplicatedUser = {};
-                                $('#signup').modal('hide');
-                                noty({
-                                    text: "Te registraste exitosamente " + $scope.newuser.username,
-                                    type: 'success',
-                                    timeout: 5000
-                                });
+                                if (response.type) {
+                                    $scope.newuser = response.data;
+                                    $scope.duplicatedUser = {};
+                                    $('#signup').modal('hide');
+                                    $('#logueo').modal('hide');
+                                    noty({
+                                        text: "Te registraste exitosamente " + $scope.newuser.username,
+                                        type: 'success',
+                                        timeout: 5000
+                                    });
+                                }
                             },
                             function(response) {
                                 $scope.duplicatedUser = response.data;
@@ -305,7 +320,7 @@
                 }
 
                 $scope.UpdateAdmin = false;
-                $scope.updateUser = function() {                      
+                $scope.updateUser = function() {
                     var User = {
                         username: $scope.UpdateUserUsername,
                         firstName: $scope.UpdateFirstName,
@@ -337,5 +352,42 @@
                             });
                         });
                 }
+
+                $scope.logout = function() {
+                    Services.logout(function() {
+                        $('#miPerfil').modal('hide');
+                        $scope.user = undefined;
+                        $scope.token = undefined;
+                        noty({
+                            text: "Vuelve pronto",
+                            type: 'success',
+                            timeout: 5000
+                        });
+                    }, function() {
+                        noty({
+                            text: "Failed to logout!",
+                            type: 'error',
+                            timeout: 5000
+                        });
+                    });
+                }
+
+                $scope.me = function() {
+                    if ($scope.token) {
+                        Services.me($scope.token, 
+                            function(res) {
+                            $scope.user = res;
+                        }, function() {
+                            noty({
+                                text: "Failed to fetch details",
+                                type: 'error',
+                                timeout: 5000
+                            });
+                        })
+                    }
+                };
+                $scope.token = $localStorage.token;
+                $scope.admin = $localStorage.admin;
+                $scope.me();
             }
         ]);

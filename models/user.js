@@ -9,7 +9,8 @@ var UserSchema = new mongoose.Schema({
     admin: Boolean,
     firstName: { type: String, required: true },
     lastName: { type: String, required: true },
-    email: String
+    email: String,
+    token: String,
 });
 
 UserSchema.pre('save', function(next) {

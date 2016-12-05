@@ -2,6 +2,7 @@ var express = require('express');
 var jwt = require("jsonwebtoken");
 var User = require('../models/user');
 var router = express.Router();
+var JWT_SECRET = 'asdAWweadSd234';
 
 
 router.use(function timeLog(req, res, next) {
@@ -11,7 +12,8 @@ router.use(function timeLog(req, res, next) {
 
 // ======= Create endpoint /api/user for POSTS ============= //
 router.post('/user', function(req, res) {
-    User.findOne({ username: req.body.username, password: req.body.password }, function(err, user) {
+    console.log('req', req.body);
+    User.findOne({ username: req.body.username }, function(err, user) {
         if (err) {
             res.json({
                 type: false,
@@ -31,16 +33,21 @@ router.post('/user', function(req, res) {
                 userModel.firstName = req.body.firstName;
                 userModel.lastName = req.body.lastName;
                 userModel.email = req.body.email;
+                userModel.token = jwt.sign(userModel, JWT_SECRET);
                 userModel.save(function(err, user) {
-                    user.token = jwt.sign(user, process.env.JWT_SECRET);
-                    user.save(function(err, user1) {
+                    console.log('token', user.token);
+                    if (err) {
+                        res.json({
+                            type: false,
+                            data: "Error occured: " + err
+                        });
+                    } else {
                         res.json({
                             type: true,
-                            data: user1,
-                            token: user1.token
+                            data: user,
                         });
-                    });
-                })
+                    }
+                });
             }
         }
     })
@@ -63,7 +70,7 @@ router.get('/user', function(req, res) {
     });
 });
 
-router.put('/user', function(req, res) {    
+router.put('/user', function(req, res) {
     var id = req.body.username;
     var firstName = req.body.firstName;
     var lastName = req.body.lastName;
@@ -76,9 +83,9 @@ router.put('/user', function(req, res) {
             return next(err);
         }
 
-        if (firstName !== undefined && firstName.length > 0)  user.firstName = firstName;
-        if (lastName !== undefined && lastName.length > 0 ) user.lastName = lastName;
-        if (email !== undefined && email.length > 0 ) user.email = email;
+        if (firstName !== undefined && firstName.length > 0) user.firstName = firstName;
+        if (lastName !== undefined && lastName.length > 0) user.lastName = lastName;
+        if (email !== undefined && email.length > 0) user.email = email;
         if (admin !== undefined) user.admin = admin;
         console.log(admin);
         console.log(user.admin);

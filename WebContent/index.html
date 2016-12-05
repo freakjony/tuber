@@ -27,8 +27,10 @@
     <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery-noty/2.3.8/layouts/topCenter.js"></script>
     <script src="https://maps.google.com/maps/api/js?key=AIzaSyAgjlXMQ_h6MIUTgEeheA0nfPlyBjr_6hY"></script>
     <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.5.8/angular.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/ngStorage/0.3.11/ngStorage.min.js"></script>
     <script src="/node_modules/ngmap/build/scripts/ng-map.min.js"></script>
     <script type="text/javascript" src="js/uiApp.js"></script>
+    <script type="text/javascript" src="js/services.js"></script>
 
     <!-- FusionCharts library-->
     <script type="text/javascript" src="fusionCharts/js/fusioncharts.js"></script>
@@ -65,16 +67,16 @@
         <!--main-nav-start-->
         <div class="container">
             <ul class="main-nav">
-                <li ng-show="!user"><a href="#logueo" data-toggle="modal" data-target="#logueo">Identificarse</a></li>
-                <li ng-show="user"><a href="#miPerfil" data-toggle="modal" data-target="#miPerfil">Mi perfil</a></li>
+                <li ng-show="!token"><a href="#logueo" data-toggle="modal" data-target="#logueo">Identificarse</a></li>
+                <li ng-show="token"><a href="#miPerfil" data-toggle="modal" data-target="#miPerfil">Mi perfil</a></li>
                 <li><a href="#service">Como funciona</a></li>
                 <li class="small-logo">
                     <a href="#header"><img src="img/LogoNuevoSmall.png" alt=""></a>
                 </li>
                 <li><a href="#team">Recorrido</a></li>
-                <li ng-show="!user.admin">
+                <li ng-show="!admin">
                     <a title="Función habilitada para Administradores" disabled ">Estadísticas</a></li>
-                <li ng-show="user.admin"><a href="#estadisticas" data-toggle="modal" data-target="#estadisticas" ng-click="estadistica()">Estadísticas</a></li>
+                <li ng-show="admin"><a href="#estadisticas" data-toggle="modal" data-target="#estadisticas" ng-click="estadistica()">Estadísticas</a></li>
             </ul>
             <a class="res-nav_click" href="#"><i class="fa-bars"></i></a>
         </div>
@@ -120,8 +122,8 @@
                 <form class="form-inline" style="display:inline;">
                     <div class="form-group" style="margin-right:20px 10px !important;">
                         <h3>Punto de partida: </h3>
-                        <input ng-if="user.admin" id="starting-point" type="text" placeholder="San Juan 500, Corrientes, Corrientes " style="width: 95%; ">
-                        <input ng-if="!user.admin" readonly id="starting-point " type="text " placeholder="San Juan 500, Corrientes, Corrientes " style="width: 95%; ">
+                        <input ng-show="admin" id="starting-point" type="text" placeholder="San Juan 500, Corrientes, Corrientes " style="width: 95%; ">
+                        <input ng-show="!admin" readonly id="starting-point " type="text " placeholder="San Juan 500, Corrientes, Corrientes " style="width: 95%; ">
                     </div>
                     <div class="form-group" style="margin-right:20px 10px !important; ">
                         <h3>Punto crítico de llenado: </h3>
@@ -129,8 +131,8 @@
                     </div>
                     <div class="form-group" style="margin-right:20px 10px !important; ">
                         <h3>Insertar contenedor: </h3>
-                        <button ng-if="user.admin" type="button" data-toggle="modal" data-target="#insertContainer " style="width: 95%; ">Nuevo contenedor</button>
-                        <button ng-if="!user.admin" type="button" title="Función habilitada para Administradores " disabled style="width: 95%; ">Nuevo contenedor</button>
+                        <button ng-show="admin" type="button" data-toggle="modal" data-target="#insertContainer " style="width: 95%; ">Nuevo contenedor</button>
+                        <button ng-show="!admin" type="button" title="Función habilitada para Administradores " disabled style="width: 95%; ">Nuevo contenedor</button>
                     </div>
                     <div class="form-group" style="margin-right:20px 10px !important; ">
                         <h3>Estado contenedores: </h3>
@@ -138,7 +140,7 @@
                     </div>
                     <div class="form-group">
                         <input type="submit" id="submit" value="Calcular recorrido " style="margin-right: 3em; ">
-                        <input ng-if="user.admin" type="submit " id="recogerContenedores" value="Vaciar contenedores" ng-click="clearPercentage()">
+                        <input ng-show="admin" type="submit " id="recogerContenedores" value="Vaciar contenedores" ng-click="clearPercentage()">
                     </div>
                 </form>
                 <div id="map" style="width: 900px;height: 400px; "></div>
@@ -180,8 +182,8 @@
                     <div class="modal-content">
                         <ul class="main-nav">
                             <li><a href="#login" data-toggle="modal" data-target="#UpdateUser" ng-click="getUserByUsername(user)"> Mis Datos</a></li>
-                            <li><a href="#signup" data-toggle="modal" data-target="#signup"> Cerrar Sesi&oacute;n</a></li>
-                            <li ng-show="user.admin"><a href="/usersView.html"> Administrar Usuarios</a></li>
+                            <li><a href="#logout" data-toggle="modal" ng-click="logout()"> Cerrar Sesi&oacute;n</a></li>
+                            <li ng-show="admin"><a href="/usersView.html"> Administrar Usuarios</a></li>
 
                         </ul>
                     </div>
@@ -261,17 +263,17 @@
                             <h4 class="modal-title" style="text-align: center; ">Iniciar Sesi&oacute;n</h4>
                         </div>
                         <div class="modal-body">
-                            <form name="editForm" role="form" ng-submit="login()" show-validation>
+                            <form name="editForm" role="form" ng-submit="login(username, password)" show-validation>
                                 <div class="form-group">
                                     <label style="margin-left: 5px; "> Nombre de usuario: </label>
-                                    <input style="margin-left: auto; margin-right: auto; width: 95%; " type="text" class="form-control" name="username" placeholder="Nombre de usuario" ng-model="user.username" required oninvalid="this.setCustomValidity( 'Ingrese un nombre de usuario valido')" oninput="this.setCustomValidity('')">
+                                    <input style="margin-left: auto; margin-right: auto; width: 95%; " type="text" class="form-control" name="username" placeholder="Nombre de usuario" ng-model="username" required oninvalid="this.setCustomValidity( 'Ingrese un nombre de usuario valido')" oninput="this.setCustomValidity('')">
                                 </div>
                                 <div>
                                     <span class="help-block" ng-show="badLogin"><p class="text-danger">{{badLogin}}</p></span>
                                 </div>
                                 <div class="form-group">
                                     <label style="margin-left: 5px;"> Contrase&ntilde;a: </label>
-                                    <input style="margin-left: auto; margin-right: auto; width: 95%;" type="password" class="form-control " name="password" ng-model="user.password" required="" oninvalid="this.setCustomValidity( 'Ingrese una contrase&ntilde;a') " oninput="this.setCustomValidity( '') ">
+                                    <input style="margin-left: auto; margin-right: auto; width: 95%;" type="password" class="form-control " name="password" ng-model="password" required="" oninvalid="this.setCustomValidity( 'Ingrese una contrase&ntilde;a') " oninput="this.setCustomValidity( '') ">
                                 </div>
                                 <div class="form-row">
                                 </div>
@@ -343,16 +345,16 @@
                             <!--class="form-group " -->
                             <div ng-repeat="container in containers">
                                 <!-- inside col 1 -->
-                                <div class="clearfix wow" ng-if="$index % 2==0"></div>
+                                <div class="clearfix wow" ng-show="$index % 2==0"></div>
                                 <div class="col-sm-6">
-                                    <div ng-if="user.admin" data-toggle="modal" data-target="#editContainer" ng-click="prepareToDelete(container)" class="c100 p{{container.percentageFull}} small" style="margin-left: 10px;">
+                                    <div ng-show="admin" data-toggle="modal" data-target="#editContainer" ng-click="prepareToDelete(container)" class="c100 p{{container.percentageFull}} small" style="margin-left: 10px;">
                                         <span>{{container.percentageFull}}%</span>
                                         <div class="slice">
                                             <div class="bar"></div>
                                             <div class="fill"></div>
                                         </div>
                                     </div>
-                                    <div ng-if="!user.admin" class="c100 p{{container.percentageFull}} small" style="margin-left: 10px; ">
+                                    <div ng-show="!admin" class="c100 p{{container.percentageFull}} small" style="margin-left: 10px; ">
                                         <span>{{container.percentageFull}}%</span>
                                         <div class="slice">
                                             <div class="bar"></div>
