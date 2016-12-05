@@ -181,7 +181,7 @@
                 <div class="modal-dialog">
                     <div class="modal-content">
                         <ul class="main-nav">
-                            <li><a href="#login" data-toggle="modal" data-target="#UpdateUser" ng-click="getUserByUsername(user)"> Mis Datos</a></li>
+                            <li><a href="#login" data-toggle="modal" data-target="#UpdateUser" ng-click="getUserByUsername(user.username)"> Mis Datos</a></li>
                             <li><a href="#logout" data-toggle="modal" ng-click="logout()"> Cerrar Sesi&oacute;n</a></li>
                             <li ng-show="admin"><a href="/usersView.html"> Administrar Usuarios</a></li>
 
@@ -198,7 +198,7 @@
                             <h3 class="text-info">Mis datos</h3>
                         </div>
                         <div class="modal-body">
-                            <form class="form-horizontal">
+                           <!-- <form class="form-horizontal">
                                 <div class="form-group">
                                     <label class="text-info"> Usuario: {{UpdateUserUsername}} </label>
                                 </div>
@@ -214,6 +214,59 @@
                                 <div class="form-group">
                                     <label class="text-info"> Admin: {{UpdateUserAdmin}} </label>
                                 </div>
+                                -->
+                             <div class="table-responsive">
+        <table class="table table-striped">
+            <thead>
+            <tr>
+                <th translate="entity.detail.field">Campo</th>
+                <th translate="entity.detail.value">Valor</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr>
+                <td>
+                    <span>Usuario</span>
+                </td>
+                <td>
+                    <span class="form-control-static">{{UpdateUserUsername}}</span>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <span>Nombre</span>
+                </td>
+                <td>
+                    <span class="form-control-static">{{UpdateUserFirstName}}</span>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <span>Apellido</span>
+                </td>
+                <td>
+                    <span class="form-control-static">{{UpdateUserLastName}}</span>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <span>Email</span>
+                </td>
+                <td>
+                    <span class="form-control-static">{{UpdateUserEmail}}</span>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <span>Admin</span>
+                </td>
+                <td>
+                    <input id="admin" disabled="true" type="checkbox" ng-model="UpdateUserAdmin" aria-label="admin" ng-true-value="true" ng-false-value="false">
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
                             </form>
                         </div>
                         <div class="modal-footer">

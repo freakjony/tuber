@@ -57,6 +57,16 @@ angular.module('ngMap')
                 delete $localStorage.token;
                 delete $localStorage.admin;
                 success();
+            },
+            getByName: function(username, success, error) {
+                $http({
+                    method: 'GET',
+                    url: '/api/user?username=' + username,
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    data: username
+                }).success(success).error(error)
             }
         };
     }]);

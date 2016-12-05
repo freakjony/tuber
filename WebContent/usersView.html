@@ -53,12 +53,12 @@ input {
 }
 </style>
 
-<body ng-controller="tuberApp">
+<body ng-controller="userViewCtrl">
     <nav class="navbar navbar-default navbar-static-top">
         <div class="container">
             <ul class="nav navbar-nav">
                 <li class="active">
-                    <a href="/index.html">Volver</a>
+                    <a href="/#test">Volver</a>
                 </li>
             </ul>
         </div>
@@ -85,10 +85,10 @@ input {
                         <td> {{usr.firstName}} </td>
                         <td>{{usr.lastName}}</td>
                         <td>{{usr.email}}</td>
-                        <td>{{usr.admin}}</td>
+                        <td><input id="admin" disabled="true" type="checkbox" ng-checked="{{usr.admin}}" aria-label="activo"></td>
                         <td style="width:200px;">
-                            <a href="#" class="btn btn-info" data-toggle="modal" data-target="#UpdateUser" ng-click="getUserByUsername(usr)">Actualizar</a>
-                            <a href="#" class="btn btn-danger" id="btnDelete" data-toggle="modal" data-target="#deleteDialog" ng-click="getUserByUsername(usr)">Eliminar</a>
+                            <a href="#" class="btn btn-info" data-toggle="modal" data-target="#UpdateUser" ng-click="getUserByUsername(usr.username)">Actualizar</a>
+                            <a href="#" class="btn btn-danger" id="btnDelete" data-toggle="modal" data-target="#deleteDialog" ng-click="getUserByUsername(usr.username)">Eliminar</a>
                         </td>
                     </tr>
                 </tbody>
@@ -108,7 +108,7 @@ input {
                             <!-- FORMULARIO UPDATE USUARIO -->
                             <form class="form-horizontal" name="UpdateUserForm">
                                 <div class="form-group">
-                                    <label class="text-info"> Usuario: {{UpdateUserUsername}} </label>
+                                    <label class="text-info"> Usuario: {{UpdateUsername}} </label>
                                     <!-- <input class="form-control" readonly="readonly" name="username" ng-model="UpdateUsername" type="hidden" placeholder= required />    -->
                                 </div>
                                 <div class="form-group">
@@ -125,7 +125,7 @@ input {
                                 </div>
                                 <div class="form-group">
                                     <label class="text-info"> Admin</label>
-                                    <input class="form-control" name="Designation" ng-model="UpdateAdmin" type="checkbox" placeholder="Admin" required />
+                                    <input class="form-control" name="Designation" ng-model="UpdateAdmin" type="checkbox" ng-true-value="true" ng-false-value="false" placeholder="Admin" required />
                                 </div>
                             </form>
                         </div>
@@ -144,17 +144,70 @@ input {
                             <button type="button" class="close" data-dismiss="modal">&times;</button>
                             <h3 class="text-info">Desea eliminar el usuario?</h3>
                         </div>
-                        <div class="modal-body">
+                    <!--<div class="modal-body">
                             <div>
-                                <p>Usuario:{{UpdateUserUsername}}</p>
-                                <p>Nombre:{{UpdateEmpName}}</p>
-                                <p>Apellido:{{UpdateSalary}}</p>
-                                <p>Email:{{UpdateDeptName}}</p>
-                                <p>Admin:{{UpdateDesignation}}</p>
+                                <p>Usuario:{{UpdateUsername}}</p>
+                                <p>Nombre:{{UpdateFirstName}}</p>
+                                <p>Apellido:{{UpdateLastName}}</p>
+                                <p>Email:{{UpdateEmail}}</p>
+                                <p>Admin:{{UpdateAdmin}}</p>
                             </div>
                         </div>
+                        -->
+    <div class="table-responsive">
+        <table class="table table-striped">
+            <thead>
+            <tr>
+                <th translate="entity.detail.field">Campo</th>
+                <th translate="entity.detail.value">Valor</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr>
+                <td>
+                    <span>Usuario</span>
+                </td>
+                <td>
+                    <span class="form-control-static">{{UpdateUsername}}</span>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <span>Nombre</span>
+                </td>
+                <td>
+                    <span class="form-control-static">{{UpdateFirstName}}</span>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <span>Apellido</span>
+                </td>
+                <td>
+                    <span class="form-control-static">{{UpdateLastName}}</span>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <span>Email</span>
+                </td>
+                <td>
+                    <span class="form-control-static">{{UpdateEmail}}</span>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <span translate="sifergasApp.localidad.activo">Admin</span>
+                </td>
+                <td>
+                    <input id="activo" disabled="true" type="checkbox" ng-model="UpdateAdmin" aria-label="admin" ng-true-value="true" ng-false-value="false">
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
                         <div class="modal-footer">
-                            <button type="button" class="btn btn-danger" data-dismiss="modal" ng-click="deleteUser(UpdateUserUsername)">Eliminar Usuario</button>
+                            <button type="button" class="btn btn-danger" data-dismiss="modal" ng-click="deleteUser(UpdateUsername)">Eliminar Usuario</button>
                             <button type="button" class="btn btn-default" data-dismiss="modal">Cerrar</button>
                         </div>
                     </div>
