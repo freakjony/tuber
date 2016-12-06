@@ -24,7 +24,6 @@ app.controller(
     "tuberApp", [
         '$scope', '$http', '$timeout', '$localStorage', 'Services',
         function($scope, $http, $timeout, $localStorage, Services) {
-            // $scope.user = { "name": "ShummyLyn", "admin": true };
             $scope.newContainer = { "containerId": null, "percentageFull": 0, "lng": null, "lat": null, "address": null };
 
             $scope.addContainer = function(jsonContainer) {
@@ -215,8 +214,8 @@ app.controller(
                 var log = [];
                 angular.forEach($scope.containers, function(value, index) {
                     var myObj = {
-                        label: value.containerId, //your artist variable
-                        value: "" + value.timesCleared + "" //your title variable
+                        label: value.containerId,
+                        value: "" + value.timesCleared + ""
                     };
                     this.push(myObj);
                 }, log);
@@ -226,18 +225,12 @@ app.controller(
                     chart: {
                         caption: "Estadísticas de los contenedores",
                         captionFontSize: "24",
-                        // more chart properties - explained later
                     },
                     data: log
                 };
             }
 
-
-
-
-
             // USUARIOS // 
-
             $scope.getUserByUsername = function(username) {
                 Services.getByName(username, 
                     function(response) {
@@ -265,7 +258,7 @@ app.controller(
                     });
                 }, function() {
                     noty({
-                        text: "Failed to logout!",
+                        text: "Error al intentar desloguear!",
                         type: 'error',
                         timeout: 5000
                     });
@@ -280,7 +273,7 @@ app.controller(
                         },
                         function() {
                             noty({
-                                text: "Failed to fetch details",
+                                text: "Error al traer detalles del usuario",
                                 type: 'error',
                                 timeout: 5000
                             });
@@ -307,7 +300,7 @@ app.controller(
                         },
                         function() {
                             noty({
-                                text: "Failed to fetch details",
+                                text: "Error al traer detalles del usuario",
                                 type: 'error',
                                 timeout: 5000
                             });

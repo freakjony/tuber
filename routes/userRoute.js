@@ -77,7 +77,6 @@ router.put('/user', function(req, res) {
     var email = req.body.email;
     var admin = req.body.admin;
 
-    console.log(id + firstName + lastName + email + admin);
     User.findOne({ username: id }, function(err, user) {
         if (err) {
             return next(err);
@@ -87,8 +86,7 @@ router.put('/user', function(req, res) {
         if (lastName !== undefined && lastName.length > 0) user.lastName = lastName;
         if (email !== undefined && email.length > 0) user.email = email;
         if (admin !== undefined) user.admin = admin;
-        console.log(admin);
-        console.log(user.admin);
+
         user.save(function(err, updatedUser) {
             if (err) {
                 return next(err);
