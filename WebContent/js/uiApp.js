@@ -22,10 +22,11 @@ app.config(['$httpProvider', function($httpProvider) {
 }]);
 app.controller(
     "tuberApp", [
-        '$scope', '$http', '$timeout', '$localStorage', 'Services',
-        function($scope, $http, $timeout, $localStorage, Services) {
+        '$scope', '$http', '$timeout', '$localStorage', 'Services', '$filter',
+        function($scope, $http, $timeout, $localStorage, Services, $filter) {
             $scope.newContainer = { "containerId": null, "percentageFull": 0, "lng": null, "lat": null, "address": null };
-
+            $scope.fromDate = '';
+            $scope.toDate = '';
             $scope.addContainer = function(jsonContainer) {
                 $scope.addressError = null;
                 console.log("Inside addContainer angular function");
@@ -210,30 +211,49 @@ app.controller(
                 }
             };
 
-            $scope.dataSource = {};
-            $scope.estadistica = function() {
-                var log = [];
-                angular.forEach($scope.containers, function(value, index) {
-                    var myObj = {
-                        label: value.containerId,
-                        value: "" + value.timesCleared + ""
-                    };
-                    this.push(myObj);
-                }, log);
-
-                // chart data source
-                $scope.dataSource = {
-                    chart: {
-                        caption: "Estadísticas de los contenedores",
-                        captionFontSize: "24",
-                    },
-                    data: log
-                };
+            $scope.estadisticaDefault = function() {
+                $scope.fromDate = $filter('date')(Date.now() + -7*24*3600*1000, 'MM/dd/yyyy');
+                $scope.toDate = $filter('date')(Date.now(), 'MM/dd/yyyy');
+                $scope.estadistica($scope.fromDate, $scope.toDate);
+                //$scope.estadistica('05/12/2016', '08/12/2016');
             }
+
+            $scope.estadistica = function(fromDate, toDate) {
+                $scope.dataSource = {};
+                $scope.history = [];
+                var toDate2 = $filter('date')(new Date(toDate).getTime() + 24*3600*1000, 'MM/dd/yyyy');
+                var dates = { "fromDate": fromDate, "toDate": toDate2 };
+                Services.history(dates, function(response) {
+                    $scope.history = response;
+                    var log = [];
+                    angular.forEach($scope.history, function(value, index) {
+                        var myObj = {
+                            label: value._id,
+                            value: "" + value.count + ""
+                        };
+                        this.push(myObj);
+                    }, log);
+                    // chart data source
+                    $scope.dataSource = {
+                        chart: {
+                            caption: "Estadísticas de los contenedores",
+                            captionFontSize: "24",
+                        },
+                        data: log
+                    }
+                }, function() {
+                    noty({
+                        text: "Error obteniendo las estadisticas.",
+                        type: 'error',
+                        timeout: 5000
+                    });
+                });
+            }
+            $scope.estadisticaDefault();
 
             // USUARIOS // 
             $scope.getUserByUsername = function(username) {
-                Services.getByName(username, 
+                Services.getByName(username,
                     function(response) {
                         $scope.UpdateUserAdmin = response.admin;
                         $scope.UpdateUserEmail = response.email;
@@ -307,7 +327,7 @@ app.controller(
                             });
                         })
                 } else {
-                    window.location = "/#test" ;
+                    window.location = "/#test";
                 };
             };
             $scope.me();
@@ -407,7 +427,7 @@ app.controller(
             }
 
             $scope.getUserByUsername = function(username) {
-                Services.getByName(username, 
+                Services.getByName(username,
                     function(response) {
                         $scope.UpdateAdmin = response.admin;
                         $scope.UpdateEmail = response.email;
@@ -423,3 +443,25 @@ app.controller(
 
         }
     ]);
+app.directive('datepicker', function() {
+    return {
+
+      restrict: 'A',
+      // Always use along with an ng-model
+      require: '?ngModel',
+
+      link: function(scope, element, attrs, ngModel) {
+        if (!ngModel) return;
+
+        ngModel.$render = function() { //This will update the view with your model in case your model is changed by another code.
+           element.datepicker('update', ngModel.$viewValue || '');
+        };
+
+        element.datepicker().on("changeDate",function(event){
+            scope.$apply(function() {
+               ngModel.$setViewValue(event.date);//This will update the model property bound to your ng-model whenever the datepicker's date changes.
+            });
+        });
+      }
+    };
+});

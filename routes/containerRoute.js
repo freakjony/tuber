@@ -1,6 +1,7 @@
 var express = require('express');
 var geocoder = require('geocoder');
 var Container = require('../models/container');
+var ContainersHistory = require('../models/containersHistory');
 var router = express.Router();
 var googleMapsClient = require('@google/maps').createClient({
     key: 'AIzaSyAgjlXMQ_h6MIUTgEeheA0nfPlyBjr_6hY'
@@ -25,7 +26,13 @@ router.put('/clear', function(req, res) {
             containers.forEach(function(container) {
                 console.log("Clearing percentageFull of container: " + container.containerId);
                 container.percentageFull = 0;
-                container.timesCleared = container.timesCleared + 1;
+                var history = new ContainersHistory();
+                history.containerId = container.containerId;
+                history.save(function(err, historyAdded){
+                    if (err) {
+                        return next(err);
+                    }
+                });
                 container.save(function(err, updatedContainer) {
                     if (err) {
                         return next(err);

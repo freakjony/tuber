@@ -34,12 +34,16 @@ app.use(allowCrossDomain);
 
 var router = express.Router();
 var Container = require('./models/container');
+var ContainersHistory = require('./models/containersHistory');
+var ContainersHistoryRoute = require('./routes/containersHistoryRoute');
 var containerRoute = require('./routes/containerRoute');
 var User = require('./models/user');
 var userRoute = require('./routes/userRoute');
 
 app.use('/api', containerRoute);
+app.use('/api', ContainersHistoryRoute);
 app.use('/api', userRoute);
+
 
 process.on('uncaughtException', function(err) {
     console.log(err);

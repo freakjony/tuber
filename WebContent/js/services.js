@@ -67,6 +67,14 @@ angular.module('ngMap')
                     },
                     data: username
                 }).success(success).error(error)
+            },
+            history: function(dates, success, error) {
+                $http({
+                    method: 'POST',
+                    url: baseUrl + 'history',
+                    data: dates,
+                    headers: { 'Content-Type': 'application/json' }
+                }).success(success).error(error)
             }
         };
     }]);
