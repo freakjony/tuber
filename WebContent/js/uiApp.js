@@ -86,9 +86,10 @@ app.controller(
                 $scope.deleteContainer = container;
             };
 
+            // Changing 'Delete' function to set the container's status to 0
             $scope.delete = function() {
                 $http({
-                    method: 'DELETE',
+                    method: 'PUT',
                     url: '/api/delete',
                     headers: {
                         'Content-Type': 'application/json'

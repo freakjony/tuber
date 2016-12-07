@@ -8,7 +8,8 @@ var ContainerSchema   = new mongoose.Schema({
   lng: Number,
   address: String,
   percentageFull: Number, // Number from 0 to 100
-  timesCleared: {type: Number, default: 0 }
+  timesCleared: {type: Number, default: 0 },
+  status: {type: Boolean, default: true }
 });
 
 // Export the Mongoose model

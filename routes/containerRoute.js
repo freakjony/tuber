@@ -109,7 +109,7 @@ router.get('/geocodedlist', function(req, res) {
 });
 
 router.get('/container', function(req, res) {
-    Container.find({}, function(err, containers) {
+    Container.find({status: true}, function(err, containers) {
         res.send(containers);
     });
 });
@@ -133,12 +133,31 @@ router.get('/test', function(req, res) {
     });
 });
 
-// ========= DELETE CONTAINER BY ID ==================== //
+// ========= HARD DELETE CONTAINER BY ID (Service call only) ==================== //
 router.delete('/delete', function(req, res) {
     var id = req.body.containerId;
     console.log("Attempting to delete container with id: " + id);
     Container.find({ containerId: id }).remove().exec();
 
+    res.json({ message: 'Container deleted successfully!', data: Container });
+});
+
+// ========= SOFT DELETE CONTAINER BY ID (Service or UI) ==================== //
+router.put('/delete', function(req, res) {
+    var id = req.body.containerId;
+    console.log("Setting status 0 to container with id: " + id);
+    Container.findOne({ containerId: id }, function(err, container) {
+        if (err) {
+            return next(err);
+        }
+        container.status = false;
+        container.save(function(err, updatedContainer) {
+            if (err) {
+                return next(err);
+            }
+            res.send(updatedContainer);
+        });
+    });
     res.json({ message: 'Container deleted successfully!', data: Container });
 });
 
