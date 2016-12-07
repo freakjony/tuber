@@ -18,8 +18,8 @@ router.post('/history', function(req, res) {
     console.log('from', fromDate);
     console.log('to', toDate);
     ContainersHistory.aggregate([{
-        $match: {date: { $gt: new Date(fromDate), $lt: new Date(toDate) }}
-    },{
+        $match: { date: { $gt: new Date(fromDate), $lt: new Date(toDate) } }
+    }, {
         $group: {
             _id: "$containerId",
             "count": { $sum: 1 }
@@ -34,4 +34,23 @@ router.post('/history', function(req, res) {
     });
 });
 
+router.post('/fake', function(req, res) {
+    var history = new ContainersHistory();
+    history.containerId = req.body.containerId;
+    history.date = req.body.date;
+
+    history.save(function(err, newHistory) {
+        if (err) {
+            return next(err);
+        }
+        res.json(newHistory);
+    });
+
+});
+
+router.get('/history', function(req, res) {
+    ContainersHistory.find({} , function(err, histories) {
+        res.send(histories);
+    });
+});
 module.exports = router;
